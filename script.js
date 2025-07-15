@@ -29,13 +29,13 @@ const loadTasks = async () => {
 
 const sendToTelegram = (task) => {
     const text = `
-        Новая задача:
-        ${task.title}
-        ${task.description}
-        От: ${task.createdBy}
-        Figma: ${task.figmaLink || "—"}
-        ТЗ: ${task.tzLink || "—"}
-        ${new Date(task.createdAt).toLocaleString()}
+Новая задача:
+${task.title}
+${task.description}
+От: ${task.createdBy}
+Figma: ${task.figmaLink || "—"}
+ТЗ: ${task.tzLink || "—"}
+${new Date(task.createdAt).toLocaleString()}
             `;
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
