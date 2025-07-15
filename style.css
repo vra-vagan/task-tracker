@@ -152,6 +152,11 @@ h4,
     padding: 0.5rem;
     border-radius: 0.5rem;
     transition: color 0.3s ease, background-color 0.3s ease;
+    border: none;
+    background: none;
+    color: var(--color-main-100);
+    width: 100%;
+    cursor: pointer;
 }
 
 .sidebar__link[data-active="true"],

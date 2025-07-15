@@ -19,9 +19,11 @@ const db = getFirestore(app);
 
 const tasksRef = collection(db, "tasks");
 
+let currentStatus = "all";
+
 const loadTasks = async () => {
-    const taskContainer = document.querySelector('.content__tasks');
-    if (taskContainer) taskContainer.classList.add('loading');
+    const taskContainer = document.querySelector(".content__tasks");
+    if (taskContainer) taskContainer.classList.add("loading");
     const snapshot = await getDocs(tasksRef);
     const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     renderTasks(tasks);
@@ -364,7 +366,7 @@ const renderTasks = (tasks) => {
         in_progress: "В процессе",
         created: "Не начато",
     };
-    const status = new URLSearchParams(window.location.search).get("status") || "all";
+    const status = currentStatus;
     titleEl.textContent = statusMap[status] || "Все задачи";
     document.querySelectorAll(".sidebar__link").forEach((link) => {
         if (link.dataset.status === status) {
@@ -449,9 +451,20 @@ const renderTasks = (tasks) => {
 
     handleAdd();
     handleTaskClick();
-    container.classList.remove('loading')
+    container.classList.remove("loading");
+};
+
+const handleFilters = () => {
+    document.querySelectorAll(".sidebar__link").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            currentStatus = btn.dataset.status || "all";
+            loadTasks();
+        });
+    });
 };
 
 window.addEventListener("DOMContentLoaded", () => {
+    handleFilters();
     loadTasks();
 });
