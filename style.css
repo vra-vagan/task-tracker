@@ -771,7 +771,7 @@ body[data-theme="light"] .task__full-additional-content {
     }
 
     .task__top-description {
-        max-width: unset;
+        max-width: calc(100% - 6rem);
     }
 
     .modal__container {
