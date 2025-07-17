@@ -676,6 +676,10 @@ body[data-theme="light"] .task__full-additional-content {
         line-height: 0.8;
     }
 
+    .sidebar__link {
+        font-size: 0.75rem;
+    }
+
     .theme-toggle {
         display: none;
     }
