@@ -117,7 +117,7 @@ const updateTaskStatus = async (e, id, status) => {
     const taskRef = doc(db, "tasks", id);
     await updateDoc(taskRef, {
         status,
-        startedAt: new Date().toISOString(),
+        ...(status === "in_progress" ? { startedAt: new Date().toISOString() } : { finishedAt: new Date().toISOString() }),
     });
     loadTasks();
     closeModal(e);
@@ -448,8 +448,6 @@ const renderTasks = (tasks) => {
         `;
         container.append(empty);
     }
-
-    handleAdd();
     handleTaskClick();
     container.classList.remove("loading");
 };
@@ -466,5 +464,6 @@ const handleFilters = () => {
 
 window.addEventListener("DOMContentLoaded", () => {
     handleFilters();
+    handleAdd();
     loadTasks();
 });

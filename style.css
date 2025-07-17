@@ -246,7 +246,7 @@ h4,
 .task__info {
     display: flex;
     flex-direction: column;
-    min-width: 2rem;
+    min-width: 2.25rem;
     gap: 1rem;
 }
 
@@ -307,7 +307,7 @@ h4,
 .btn {
     border: none;
     border-radius: 0.5rem;
-    height: 2rem;
+    height: 2.25rem;
     padding: 0.5rem;
     cursor: pointer;
     color: #ffffff;
@@ -427,7 +427,7 @@ h4,
     background: var(--color-main-10);
     color: var(--color-main-100);
     border-radius: 0.5rem;
-    height: 2rem;
+    height: 2.25rem;
     padding: 0 0.5rem;
     outline: none;
     border: 0.0625rem solid transparent;
@@ -504,14 +504,14 @@ textarea.task__form-input {
 
 .task__full-description {
     white-space: pre-wrap;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border-radius: 0.5rem;
-    border: 0.0625rem solid var(--color-main-10);
+    background: var(--color-main-8);
 }
 
 .btn__show-more {
-    height: 2rem;
-    width: 2rem;
+    height: 2.25rem;
+    width: 2.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
