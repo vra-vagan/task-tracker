@@ -23,13 +23,9 @@
     border: 2px solid var(--color-bg-100);
 }
 
-ul {
-    list-style: none;
-}
-
-a {
-    text-decoration: none;
-    color: var(--color-main-100);
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -68,6 +64,15 @@ body[data-theme="dark"] {
     --color-main: 255, 255, 255;
 }
 
+ul {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-main-100);
+}
+
 html,
 body {
     background-color: var(--color-bg-100);
@@ -83,27 +88,30 @@ h1 {
 }
 
 h2 {
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 600;
     line-height: 1.2;
 }
 
+.theme-toggle span,
 .task__form-input,
+.task__form-input::placeholder,
 .task__full-description,
 .task__full-createdBy,
 .task__full .task__link,
-.btn {
+.btn,
+.sidebar__link,
+.task__top-description {
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.2;
 }
 
-.sidebar__link,
+.task__form-group label,
 .task__status,
 h4,
 .task__bottom-item,
-.task__link,
-.task__top-description {
+.task__link {
     font-size: 0.75rem;
     font-weight: 400;
     line-height: 1.2;
@@ -212,7 +220,7 @@ h4,
     cursor: pointer;
     transition: background-color 0.3s ease;
     border-radius: 0.75rem;
-    background-color: var(--color-main-8);
+    background-color: var(--color-main-5);
     position: relative;
 }
 
@@ -310,7 +318,7 @@ h4,
     border: none;
     border-radius: 0.5rem;
     height: 2.25rem;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     cursor: pointer;
     color: #ffffff;
     background-color: var(--color-status-blue);
@@ -484,7 +492,6 @@ textarea.task__form-input {
 }
 
 .task__form-group label {
-    font-size: 0.75rem;
     color: var(--color-main-40);
 }
 
@@ -528,6 +535,10 @@ textarea.task__form-input {
     background-color: #505050;
 }
 
+.btn__show-more svg {
+    flex-shrink: 0;
+}
+
 .task__full-additional {
     position: relative;
 }
@@ -551,7 +562,7 @@ textarea.task__form-input {
 
 body[data-theme="light"] .btn__show-more,
 body[data-theme="light"] .task__full-additional-content {
-    background: #c2c2c2;
+    background: #999999;
 }
 
 body[data-theme="light"] .task__full-additional-content {
@@ -607,6 +618,53 @@ body[data-theme="light"] .task__full-additional-content {
     animation: spin 0.6s linear infinite;
 }
 
+.theme-toggle input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+}
+
+.theme-toggle__label {
+    display: flex;
+    width: 2.25rem;
+    height: 1.25rem;
+    border-radius: 10rem;
+    background-color: var(--color-main-10);
+    cursor: pointer;
+    padding: 0.125rem;
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+}
+
+.theme-toggle__label:after {
+    content: '';
+    display: block;
+    height: 1rem;
+    width: 1rem;
+    border-radius: 50%;
+    background-color: #ffffff;
+    transition: margin-left 0.3s ease;
+    box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.theme-toggle input:checked~label:after {
+    margin-left: calc(100% - 1rem);
+}
+
+.theme-toggle input:checked~label {
+    background-color: var(--color-status-green);
+}
+
 @keyframes spin {
     to {
         transform: translate(-50%, -50%) rotate(360deg);
@@ -616,6 +674,10 @@ body[data-theme="light"] .task__full-additional-content {
 @media screen and (max-width: 640px) {
     .task__bottom-item span {
         line-height: 0.8;
+    }
+
+    .theme-toggle {
+        display: none;
     }
 
     .sidebar__link svg {
