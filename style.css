@@ -123,14 +123,14 @@ h4,
     border-radius: 0.75rem;
     overflow: hidden;
     height: calc(100vh - min(2.5rem, 8vh) * 2);
-    border: 0.0625rem solid var(--color-main-20);
+    border: 0.0625rem solid var(--color-main-10);
     transition: height 0.3s ease;
 }
 
 .sidebar {
     background-color: var(--color-main-8);
     padding: 0.5rem;
-    border-right: 0.0625rem solid var(--color-main-8);
+    border-right: 0.0625rem solid var(--color-main-5);
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -319,6 +319,7 @@ h4,
     -ms-user-select: none;
     user-select: none;
     white-space: nowrap;
+    outline: none;
 }
 
 .btn__red {
@@ -375,9 +376,12 @@ h4,
     position: relative;
     display: flex;
     flex-direction: column;
-    border: 0.0625rem solid var(--color-main-15);
-    box-shadow: 0 0 2.5rem var(--color-bg-20);
+    border: 0.0625rem solid var(--color-main-8);
     transform: scale(1.2);
+}
+
+body[data-theme="light"] .modal__container {
+    box-shadow: 0 0 4.5rem var(--color-main-20);
 }
 
 .modal[data-active="true"] .modal__container {
@@ -461,7 +465,7 @@ textarea.task__form-input {
 }
 
 .task__form-input:focus {
-    border: 0.0625rem solid var(--color-main-20);
+    border: 0.0625rem solid var(--color-main-10);
 }
 
 .task__form-actions {
@@ -509,6 +513,10 @@ textarea.task__form-input {
     background: var(--color-main-8);
 }
 
+.task__full-description a {
+    color: var(--color-status-blue);
+}
+
 .btn__show-more {
     height: 2.25rem;
     width: 2.25rem;
@@ -529,21 +537,25 @@ textarea.task__form-input {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    border-radius: 0.5rem;
+    border-radius: 0.625rem;
     opacity: 0;
     transform: translateY(-20%);
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    padding: 0.5rem;
+    background: #505050;
+    box-shadow: 0 0 1.25rem var(--color-bg-20);
+}
+
+body[data-theme="light"] .task__full-additional-content {
+    background: #c2c2c2;
+    box-shadow: 0 0 1.25rem var(--color-main-20);
 }
 
 .task__full-additional[data-active="true"] .task__full-additional-content {
     opacity: 1;
     transform: translateY(0);
     pointer-events: all;
-}
-
-.task__full-additional-content .btn {
-    box-shadow: 0 0 2rem var(--color-bg-50);
 }
 
 .btn.loading {

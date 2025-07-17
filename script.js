@@ -264,6 +264,18 @@ const buildTaskForm = (values = {}, isEdit = false) => {
     return form;
 };
 
+const convertLinksToAnchors = (text) => {
+    return text.replace(/(?<!href="|">)((https?:\/\/|www\.)[^\s<>()\]]+[^\s<>,.?!:;()\]])/gi, (match) => {
+        let url = match;
+
+        if (!/^https?:\/\//i.test(url)) {
+            url = "https://" + url;
+        }
+
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+    });
+};
+
 const handleTaskClick = () => {
     document.querySelectorAll(".task").forEach((taskItem) => {
         taskItem.addEventListener("click", (e) => {
@@ -271,7 +283,8 @@ const handleTaskClick = () => {
 
             const taskId = taskItem.dataset.id || "";
             const taskTitle = taskItem.querySelector(".task__top-title")?.innerText || "";
-            const taskDescr = taskItem.querySelector(".task__top-description")?.innerHTML || "";
+            const taskDescrRaw = taskItem.querySelector(".task__top-description")?.innerHTML || "";
+            const taskDescr = convertLinksToAnchors(taskDescrRaw);
             const taskCreatedBy = taskItem.querySelector(".task__created-by span")?.innerText || "";
             const taskLinkT = taskItem.querySelector(".task__link-t")?.href || "";
             const taskLinkF = taskItem.querySelector(".task__link-f")?.href || "";
