@@ -149,8 +149,21 @@ const createTaskContent = (taskId, taskDescr, taskCreatedBy, taskLinkT, taskLink
                     </svg>
                 </button>
                 <div class="task__full-additional-content" data-active="false">
-                    <button class="task__edit btn">Редактировать</button>
-                    <button class="task__delete btn btn__red">Удалить</button>
+                    <button class="task__edit btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.4" d="M9.49219 2.43876L11.3383 0.594057C11.745 0.187597 12.2457 0 12.7776 0C13.2782 0 13.7789 0.187597 14.1856 0.594057L15.4059 1.81344C15.8127 2.2199 16.0005 2.72016 16.0005 3.22042C16.0005 3.75194 15.8127 4.2522 15.4059 4.65866C14.7802 5.28398 14.1544 5.90931 13.5599 6.50337C12.1831 5.15892 10.8376 3.81447 9.49219 2.43876Z" fill="white"/>
+                            <path d="M13.5594 6.50406L5.70568 14.3519C5.51794 14.5395 5.23634 14.6958 4.95473 14.7896L0.949643 15.9777C0.699325 16.0402 0.417718 15.9777 0.229979 15.7588C0.0109514 15.5712 -0.051628 15.2899 0.0422411 15.0397L1.19996 11.0377C1.29383 10.7563 1.45028 10.4749 1.63802 10.2873L9.49174 2.43945L13.5594 6.50406Z" fill="white"/>
+                        </svg>
+                        <span>Редактировать</span>
+                    </button>
+                    <div class="divider"></div>
+                    <button class="task__delete btn">
+                        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.4" d="M1 3H13L12.3125 14.5938C12.2813 15.4063 11.625 16 10.8125 16H3.15625C2.34375 16 1.6875 15.4063 1.65625 14.5938L1 3Z" fill="white"/>
+                            <path d="M5.09375 0H8.875C9.25 0 9.59375 0.21875 9.75 0.5625L10 1H13C13.5313 1 14 1.46875 14 2C14 2.5625 13.5313 3 13 3H1C0.4375 3 0 2.5625 0 2C0 1.46875 0.4375 1 1 1H4L4.21875 0.5625C4.375 0.21875 4.71875 0 5.09375 0Z" fill="white"/>
+                        </svg>
+                        <span>Удалить</span>
+                    </button>
                 </div>
             </div>
         </div>
