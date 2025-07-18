@@ -100,13 +100,13 @@ h2 {
 .task__full-createdBy,
 .task__full .task__link,
 .btn,
-.sidebar__link,
-.task__top-description {
+.sidebar__link {
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.2;
 }
 
+.task__top-description,
 .task__form-group label,
 .task__status,
 h4,
@@ -754,24 +754,13 @@ body[data-theme="light"] .task__full-additional-content {
     }
 
     .task {
-        align-items: flex-end;
         border: 0.0625rem solid var(--color-main-8);
     }
 
     .task__bottom {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        padding-right: 100px;
-    }
-
-    .task__status {
-        position: absolute;
-        right: 1rem;
-        bottom: 1rem;
-    }
-
-    .task__top-description {
-        max-width: calc(100% - 6rem);
+        max-width: 18.75rem;
     }
 
     .modal__container {
