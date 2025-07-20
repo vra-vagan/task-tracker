@@ -318,7 +318,7 @@ const submitTask = async (e) => {
     const tzLink = document.querySelector("#add-task__tzLink").value.trim();
     const figmaLink = document.querySelector("#add-task__figmaLink").value.trim();
 
-    if (!title || !description || !createdBy || !deadLine) return;
+    if (!title || !description || !createdBy) return;
 
     const task = {
         title,
@@ -351,7 +351,7 @@ const updateTask = async (e, id, status = "created") => {
     const tzLink = document.querySelector("#add-task__tzLink")?.value.trim();
     const figmaLink = document.querySelector("#add-task__figmaLink")?.value.trim();
 
-    if (!title || !description || !createdBy || !deadLine) return;
+    if (!title || !description || !createdBy) return;
 
     const task = {
         title,
