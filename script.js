@@ -20,29 +20,38 @@ const db = getFirestore(app);
 const tasksRef = collection(db, "tasks");
 
 let currentStatus = "all";
+let allTasks = [];
 
 const loadTasks = async () => {
     const taskContainer = document.querySelector(".content__tasks");
     if (taskContainer) taskContainer.classList.add("loading");
     const snapshot = await getDocs(tasksRef);
     const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    allTasks = tasks;
     renderTasks(tasks);
 };
 
 const sendToTelegram = (task) => {
     const text = `
-Новая задача:
-${task.title}
+<b>Новая задача</b>
+
+<b>${task.title}</b>
 ${task.description}
-От: ${task.createdBy}
-Figma: ${task.figmaLink || "—"}
-ТЗ: ${task.tzLink || "—"}
-${new Date(task.createdAt).toLocaleString()}
-            `;
+
+<b>От:</b> ${task.createdBy}
+<b>Figma:</b> <a href="${task.figmaLink || "#"}">${task.figmaLink || "—"}</a>
+<b>ТЗ:</b> <a href="${task.tzLink || "#"}">${task.tzLink || "—"}</a>
+${new Date(task.createdAt).toLocaleString("ru-RU")}
+    `;
+
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: CHAT_ID, text }),
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text,
+            parse_mode: "HTML",
+        }),
     });
 };
 
@@ -123,21 +132,23 @@ const updateTaskStatus = async (e, id, status) => {
     closeModal(e);
 };
 
-const createTaskContent = (taskId, taskDescr, taskCreatedBy, taskLinkT, taskLinkF, taskStatus) => {
+const createTaskContent = (task) => {
     const content = document.createElement("div");
     content.className = "task__full";
-    content.dataset.id = taskId;
+    content.dataset.id = task.id;
+
+    const descrWithLinks = convertLinksToAnchors(task.description || "");
     content.innerHTML = `
-        <p class="task__full-description">${taskDescr}</p>
+        <p class="task__full-description">${descrWithLinks}</p>
         <div class="task__full-links">
-            ${taskLinkT ? `<a href="${taskLinkT}" class="task__link task__full-link-t" target="_blank">Смотреть ТЗ</a>` : ""}
-            ${taskLinkF ? `<a href="${taskLinkF}" class="task__link task__full-link-f" target="_blank">Смотреть макет</a>` : ""}
+            ${task.tzLink ? `<a href="${task.tzLink}" class="task__link task__full-link-t" target="_blank">Смотреть ТЗ</a>` : ""}
+            ${task.figmaLink ? `<a href="${task.figmaLink}" class="task__link task__full-link-f" target="_blank">Смотреть макет</a>` : ""}
         </div>
-        <p class="task__full-createdBy">Автор: <span>${taskCreatedBy}</span></p>
+        <p class="task__full-createdBy">Автор: <span>${task.createdBy || ""}</span></p>
         <div class="task__form-actions">
             ${
-                taskStatus !== "done"
-                    ? `<button class="task__accept ${taskStatus === "created" ? "btn" : "btn btn__green"}">${taskStatus === "created" ? "Начать задачу" : "Завершить задачу"}</button>`
+                task.status !== "done"
+                    ? `<button class="task__accept ${task.status === "created" ? "btn" : "btn btn__green"}">${task.status === "created" ? "Начать задачу" : "Завершить задачу"}</button>`
                     : ""
             }
             <div class="task__full-additional">
@@ -171,42 +182,35 @@ const createTaskContent = (taskId, taskDescr, taskCreatedBy, taskLinkT, taskLink
     return content;
 };
 
-const attachModalActions = (modal, content, taskId, taskStatus) => {
+const attachModalActions = (modal, content, task) => {
     const modalContent = modal.querySelector(".modal__content");
     const modalTitle = modal.querySelector(".modal__title");
     const oldTitle = modalTitle.innerText;
-    const status = taskStatus === "created" ? "in_progress" : "done";
+    const status = task.status === "created" ? "in_progress" : "done";
     const acceptBtn = content.querySelector(".task__accept");
-    if (acceptBtn) acceptBtn.addEventListener("click", (e) => updateTaskStatus(e, taskId, status));
+    if (acceptBtn) acceptBtn.addEventListener("click", (e) => updateTaskStatus(e, task.id, status));
 
     const editBtn = content.querySelector(".task__edit");
     editBtn.addEventListener("click", (e) => {
         e.preventDefault();
         const values = {
-            title: modalTitle.innerText,
-            description: content.querySelector(".task__full-description")?.innerText || "",
-            createdBy: content.querySelector(".task__full-createdBy span")?.innerText || "",
-            tzLink: content.querySelector(".task__full-link-t")?.href || "",
-            figmaLink: content.querySelector(".task__full-link-f")?.href || "",
+            title: task.title || "",
+            description: task.description || "",
+            createdBy: task.createdBy || "",
+            tzLink: task.tzLink || "",
+            figmaLink: task.figmaLink || "",
         };
         const editForm = buildTaskForm(values, true);
         modalContent.innerHTML = "";
         modalContent.append(editForm);
         modalTitle.innerText = "Изменить задачу";
-        editForm.addEventListener("submit", (ev) => updateTask(ev, taskId));
+        editForm.addEventListener("submit", (ev) => updateTask(ev, task.id));
         editForm.querySelector(".task__form-cancel")?.addEventListener("click", () => {
-            const restoredContent = createTaskContent(
-                taskId,
-                content.querySelector(".task__full-description")?.innerText || "",
-                content.querySelector(".task__full-createdBy span")?.innerText || "",
-                content.querySelector(".task__full-link-t")?.href || "",
-                content.querySelector(".task__full-link-f")?.href || "",
-                taskStatus
-            );
+            const restoredContent = createTaskContent(task);
             modalContent.innerHTML = "";
             modalContent.append(restoredContent);
             modalTitle.innerText = oldTitle;
-            attachModalActions(modal, restoredContent, taskId, taskStatus);
+            attachModalActions(modal, restoredContent, task);
         });
     });
 
@@ -215,7 +219,7 @@ const attachModalActions = (modal, content, taskId, taskStatus) => {
         deleteBtn.classList.add("loading");
         deleteBtn.disabled = true;
 
-        const taskRef = doc(db, "tasks", taskId);
+        const taskRef = doc(db, "tasks", task.id);
         await deleteDoc(taskRef);
         loadTasks();
         closeModal(ev);
@@ -254,7 +258,7 @@ const buildTaskForm = (values = {}, isEdit = false) => {
         </div>
         <div class="task__form-group">
             <label for="add-task__description">Описание задачи</label>
-            <textarea id="add-task__description" class="task__form-input" placeholder="Кратко опиши, что нужно сделать" rows="8" required>${description}</textarea>
+            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи..." rows="6" required>${description}</textarea>
         </div>
         <div class="task__form-group">
             <label for="add-task__tzLink">Ссылка на ТЗ</label>
@@ -273,7 +277,6 @@ const buildTaskForm = (values = {}, isEdit = false) => {
             <button type="button" class="task__form-cancel btn btn__red">Отмена</button>
         </div>
     `;
-
     return form;
 };
 
@@ -295,19 +298,13 @@ const handleTaskClick = () => {
             if (e.target.closest(".task__link")) return;
 
             const taskId = taskItem.dataset.id || "";
-            const taskTitle = taskItem.querySelector(".task__top-title")?.innerText || "";
-            const taskDescrRaw = taskItem.querySelector(".task__top-description")?.innerHTML || "";
-            const taskDescr = convertLinksToAnchors(taskDescrRaw);
-            const taskCreatedBy = taskItem.querySelector(".task__created-by span")?.innerText || "";
-            const taskLinkT = taskItem.querySelector(".task__link-t")?.href || "";
-            const taskLinkF = taskItem.querySelector(".task__link-f")?.href || "";
-            const taskStatus = taskItem.querySelector(".task__status")?.getAttribute("data-status") || "";
+            const task = allTasks.find((t) => t.id === taskId);
+            if (!task) return;
 
-            const content = createTaskContent(taskId, taskDescr, taskCreatedBy, taskLinkT, taskLinkF, taskStatus);
-            insertModal(content, taskTitle);
-
+            const content = createTaskContent(task);
+            insertModal(content, task.title || "");
             const modal = document.querySelector(".modal");
-            attachModalActions(modal, content, taskId, taskStatus);
+            attachModalActions(modal, content, task);
         });
     });
 };
@@ -321,7 +318,7 @@ const submitTask = async (e) => {
     const tzLink = document.querySelector("#add-task__tzLink").value.trim();
     const figmaLink = document.querySelector("#add-task__figmaLink").value.trim();
 
-    if (!title || !description || !createdBy) return;
+    if (!title || !description || !createdBy || !deadLine) return;
 
     const task = {
         title,
@@ -341,8 +338,8 @@ const submitTask = async (e) => {
     sendToTelegram(task);
     e.target.reset();
 
-    closeModal(e);
     loadTasks();
+    closeModal(e);
 };
 
 const updateTask = async (e, id, status = "created") => {
@@ -354,7 +351,7 @@ const updateTask = async (e, id, status = "created") => {
     const tzLink = document.querySelector("#add-task__tzLink")?.value.trim();
     const figmaLink = document.querySelector("#add-task__figmaLink")?.value.trim();
 
-    if (!title || !description || !createdBy) return;
+    if (!title || !description || !createdBy || !deadLine) return;
 
     const task = {
         title,
@@ -363,7 +360,7 @@ const updateTask = async (e, id, status = "created") => {
         createdBy,
         tzLink,
         figmaLink,
-        changedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
     };
 
     const submitBtn = e.submitter;
@@ -373,16 +370,16 @@ const updateTask = async (e, id, status = "created") => {
     const taskRef = doc(db, "tasks", id);
     await updateDoc(taskRef, task);
 
+    loadTasks();
+
     if (e && e.target) {
         closeModal(e);
     }
-    loadTasks();
 };
 
 const renderTasks = (tasks) => {
     const container = document.querySelector(".content__tasks");
     container.innerHTML = "";
-
     const today = new Date().toISOString().split("T")[0];
 
     const titleEl = document.querySelector(".content__header-title");
@@ -489,18 +486,18 @@ const handleFilters = () => {
 };
 
 const handleTheme = () => {
-    const input = document.getElementById('theme-toggle__input');
-    const applyTheme = (theme) => document.body.setAttribute('data-theme', theme);
+    const input = document.getElementById("theme-toggle__input");
+    const applyTheme = (theme) => document.body.setAttribute("data-theme", theme);
 
-    const saved = localStorage.getItem('theme');
-    const theme = saved === 'light' ? 'light' : 'dark';
+    const saved = localStorage.getItem("theme");
+    const theme = saved === "light" ? "light" : "dark";
     applyTheme(theme);
-    if (input) input.checked = theme === 'dark';
+    if (input) input.checked = theme === "dark";
 
-    input?.addEventListener('change', () => {
-        const newTheme = input.checked ? 'dark' : 'light';
+    input?.addEventListener("change", () => {
+        const newTheme = input.checked ? "dark" : "light";
         applyTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
+        localStorage.setItem("theme", newTheme);
     });
 };
 
