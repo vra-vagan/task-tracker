@@ -1,26 +1,67 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+// import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDur-_Gm0ZQOhdNwlzX5Aea-FSMXnXfyOM",
-    authDomain: "tasks-cifrium.firebaseapp.com",
-    projectId: "tasks-cifrium",
-    storageBucket: "tasks-cifrium.firebasestorage.app",
-    messagingSenderId: "969489877277",
-    appId: "1:969489877277:web:4b22747d40819df432b9f4",
-    measurementId: "G-8BM9F20HJM",
-};
+// const firebaseConfig = {
+//     apiKey: "AIzaSyDur-_Gm0ZQOhdNwlzX5Aea-FSMXnXfyOM",
+//     authDomain: "tasks-cifrium.firebaseapp.com",
+//     projectId: "tasks-cifrium",
+//     storageBucket: "tasks-cifrium.firebasestorage.app",
+//     messagingSenderId: "969489877277",
+//     appId: "1:969489877277:web:4b22747d40819df432b9f4",
+//     measurementId: "G-8BM9F20HJM",
+// };
 
-const BOT_TOKEN = "7399906374:AAEZt86SEiN8vqwqpeXwf-foSmrpNNuQu60";
-const CHAT_ID = "262304440";
+// const BOT_TOKEN = "7399906374:AAEZt86SEiN8vqwqpeXwf-foSmrpNNuQu60";
+// const CHAT_ID = "262304440";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// const app = initializeApp(firebaseConfig);
+// const db = getFirestore(app);
 
-const tasksRef = collection(db, "tasks");
+// const tasksRef = collection(db, "tasks");
 
+let deadlineTimerInterval;
 let currentStatus = "all";
-let allTasks = [];
+let allTasks = [
+    {
+        id: "VSh51V1eUuDGdUefgQZv",
+        title: "ДШ: подключить коллтач",
+        status: "created",
+        deadLine: "2025-07-22",
+        createdBy: "Лола",
+        description:
+            'Ваган, привет! Ранее обсуждали подключение коллтач к сайтам ДШ по инструкции https://www.calltouch.ru/support/kak-podklyuchit-zayavki-s-sayta-k-otslezhivaniyu-calltouch/ \n\nСейчас Серёжа получил от коллтача такой фидбек:\n1. "На сайте cifrium.ru не установлен второй скрипт (на заполнение форм). Установите, пожалуйста"\n2. Скрипты также нужно поставить на поддомены gymn.cifrium.ru и school.cifrium.com\nИнтеграторы сказали, что они создадут поддомены в личном кабинете коллтач, поэтому скрипты уже можно устанавливать',
+        createdAt: "2025-07-17T09:14:10.680Z",
+        figmaLink: "",
+        tzLink: "",
+    },
+    {
+        id: "Ze6y1rKouKNUuagxPKT7",
+        createdAt: "2025-07-16T07:56:45.522Z",
+        finishedAt: "2025-07-16T14:48:11.810Z",
+        description: "Привет!\nМатцентр, снова мы) \nНадо на ленде (https://tilda.ru/projects/?projectid=13770219) поменять ролик, эти прислали новый. https://kinescope.io/itKg4SexZdzxrpFQUcBpgk",
+        createdBy: "Аня С.",
+        title: "Заменить ролик",
+        startedAt: "2025-07-16T14:46:11.810Z",
+        figmaLink: "",
+        tzLink: "",
+        status: "done",
+    },
+    {
+        id: "arlkATI4SoNfdesGkwsc",
+        startedAt: "2025-07-20T18:26:45.128Z",
+        deadLine: "2025-07-23",
+        description:
+            "Ваган, привет) Нужно сверстать лендинг основного КБ для детишек.\n\nЧто важно:\n1. Раздел с формой заявки верстать не нужно\n2. Пока никакие ссылки вшивать тоже не нужно\n3. Смотри, этот ленд очень похож на https://it.cifrium.ru/ НО у нашего текущего макета по ссылке выше другой шрифт. В связи с этим вопрос: можем ли мы сверстать этот лендинг на поддомене https://it.cifrium.ru/ (на какой-нибудь страничке этого пдодомена). Или мы сломаем стили и лучше завести отдельный поддомен?",
+        createdBy: "Аня",
+        title: "Задача по ИТ",
+        createdAt: "2025-07-20T18:26:22.840Z",
+        figmaLink:
+            "https://www.figma.com/design/2zgsWBDo3J8IzIVnsvfQ9k/%D0%9A%D0%91-%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D0%BE%D0%B9--%D0%BC%D0%B0%D0%BA%D0%B5%D1%82-%D0%BB%D0%B5%D0%BD%D0%B4%D0%B8%D0%BD%D0%B3%D0%B0-%D0%B4%D0%BB%D1%8F-%D0%B4%D0%B5%D1%82%D0%B5%D0%B9?node-id=2-16&t=xatZe6HKmlRT6k8A-4",
+        status: "in_progress",
+        tzLink: "https://docs.google.com/document/d/17k_54nO7ZDL5tSs65zS8xxlhmVxeZjlgF5ppyJgs3rM/edit?usp=sharing",
+        finishedAt: "2025-07-20T18:26:48.151Z",
+    },
+];
 
 const loadTasks = async () => {
     const taskContainer = document.querySelector(".content__tasks");
@@ -347,6 +388,23 @@ const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
     closeModal(e);
 };
 
+const getTimeLeftToLocalMidnight = (deadlineStr) => {
+    const now = new Date();
+
+    const [year, month, day] = deadlineStr.split("-").map(Number);
+    const deadlineLocal = new Date(year, month - 1, day);
+
+    const diffMs = deadlineLocal - now;
+
+    if (diffMs <= 0) return "0 м";
+
+    const diffMins = Math.floor(diffMs / 1000 / 60);
+    const hours = Math.floor(diffMins / 60);
+    const minutes = diffMins % 60;
+
+    return `${hours} ч ${minutes} м`;
+};
+
 const renderTasks = (tasks) => {
     const container = document.querySelector(".content__tasks");
     container.innerHTML = "";
@@ -407,6 +465,18 @@ const renderTasks = (tasks) => {
                             <span>${task.createdBy}</span>
                         </p>
                         ${
+                            task.deadLine && task.status !== "done"
+                                ? `
+                                <p class="task__bottom-item task__deadline" data-deadline="${task.deadLine}">
+                                    <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 6.25586C0 4.12305 1.125 2.1543 3 1.07617C4.85156 -0.00195312 7.125 -0.00195312 9 1.07617C10.8516 2.1543 12 4.12305 12 6.25586C12 8.41211 10.8516 10.3809 9 11.459C7.125 12.5371 4.85156 12.5371 3 11.459C1.125 10.3809 0 8.41211 0 6.25586ZM5.4375 3.06836C5.4375 4.14648 5.4375 5.20117 5.4375 6.25586C5.4375 6.44336 5.53125 6.63086 5.67188 6.72461C6.42188 7.24023 7.17188 7.73242 7.92188 8.22461C8.01562 8.29492 8.13281 8.31836 8.25 8.31836C8.41406 8.31836 8.60156 8.24805 8.71875 8.08398C8.76562 7.99023 8.8125 7.87305 8.8125 7.75586C8.8125 7.5918 8.71875 7.4043 8.55469 7.28711L6.5625 5.97461C6.5625 5.01367 6.5625 4.0293 6.5625 3.06836C6.5625 3.06836 6.5625 3.04492 6.53906 3.02148C6.53906 2.99805 6.53906 2.97461 6.53906 2.97461C6.53906 2.92773 6.51562 2.88086 6.51562 2.85742C6.46875 2.78711 6.44531 2.74023 6.39844 2.66992C6.28125 2.57617 6.14062 2.50586 6 2.50586C5.67188 2.50586 5.4375 2.76367 5.4375 3.06836Z" fill="white"/>
+                                        <path d="M6 2.50586C6.30469 2.50586 6.5625 2.76367 6.5625 3.06836V5.97461L8.55469 7.28711C8.8125 7.47461 8.88281 7.82617 8.71875 8.08398C8.53125 8.3418 8.17969 8.41211 7.92188 8.22461L5.67188 6.72461C5.53125 6.63086 5.4375 6.44336 5.4375 6.25586V3.06836C5.4375 2.76367 5.67188 2.50586 6 2.50586Z" fill="white" fill-opacity="0.4"/>
+                                    </svg>
+                                    <span></span>
+                                </p>`
+                                : ""
+                        }
+                        ${
                             task.tzLink
                                 ? `<a href="${task.tzLink}" class="task__bottom-item task__link task__link-t" target="_blank">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="12" viewBox="0 0 15 12" fill="none">
@@ -442,6 +512,7 @@ const renderTasks = (tasks) => {
         container.append(empty);
     }
     handleTaskClick();
+    startDeadlineTimers();
     container.classList.remove("loading");
 };
 
@@ -471,9 +542,32 @@ const handleTheme = () => {
     });
 };
 
+const startDeadlineTimers = () => {
+    clearInterval(deadlineTimerInterval);
+    updateAllDeadlines();
+
+    const now = new Date();
+    const msToNextMinute = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds());
+
+    setTimeout(() => {
+        updateAllDeadlines();
+        deadlineTimerInterval = setInterval(updateAllDeadlines, 60000);
+    }, msToNextMinute);
+};
+
+const updateAllDeadlines = () => {
+    document.querySelectorAll(".task__deadline").forEach((el) => {
+        const deadline = el.dataset.deadline;
+        const timeLeft = getTimeLeftToLocalMidnight(deadline);
+        const span = el.querySelector("span");
+        if (span) span.textContent = timeLeft;
+    });
+};
+
 window.addEventListener("DOMContentLoaded", () => {
     handleFilters();
     handleAdd();
-    loadTasks();
+    // loadTasks();
+    renderTasks(allTasks);
     handleTheme();
 });
