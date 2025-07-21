@@ -35,6 +35,7 @@ body {
     --color-status-yellow: #FFCA00;
     --color-status-green: #34C559;
     --color-status-red: #FF3930;
+    --color-bg-flat: rgba(35, 35, 35, 1);
     --color-bg-100: rgba(var(--color-bg), 1);
     --color-bg-60: rgba(var(--color-bg), 0.6);
     --color-bg-50: rgba(var(--color-bg), 0.5);
@@ -55,6 +56,7 @@ body {
 }
 
 body[data-theme="light"] {
+    --color-bg-flat: rgba(var(--color-bg), 1);
     --color-bg: 255, 255, 255;
     --color-main: 0, 0, 0;
 }
@@ -93,6 +95,7 @@ h2 {
     line-height: 1.2;
 }
 
+.datepicker__day,
 .theme-toggle span,
 .task__form-input,
 .task__form-input::placeholder,
@@ -107,6 +110,7 @@ h2 {
     line-height: 1.2;
 }
 
+.datepicker__weekdays th,
 .task__top-description,
 .task__form-group label,
 .task__status,
@@ -382,14 +386,15 @@ h4,
     width: 100%;
     max-height: calc(100vh - 7.5rem);
     margin: auto;
-    background: var(--color-bg-50);
+    background: var(--color-bg-flat);
     border-radius: 1rem;
-    transition: transform 0.3s ease, max-height 0.3s ease;
+    transition: transform 0.3s ease, max-height 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     display: flex;
     flex-direction: column;
     border: 0.0625rem solid var(--color-main-8);
     transform: scale(1.2);
+    will-change: transform, box-shadow;
 }
 
 body[data-theme="light"] .modal__container {
@@ -414,8 +419,8 @@ body[data-theme="light"] .modal__container {
 
 .modal__content {
     overflow-y: auto;
-    margin: -0.5rem 1rem 1rem;
-    padding-top: 1rem;
+    margin: -0.5rem 1rem 1rem 0;
+    padding: 1rem 0 0 1rem;
     border-radius: 0.375rem;
 }
 
@@ -480,6 +485,10 @@ textarea.task__form-input {
     border: 0.0625rem solid var(--color-main-10);
 }
 
+.task__form-datepicker {
+    cursor: pointer;
+}
+
 .task__form-actions {
     display: flex;
     gap: 0.5rem;
@@ -489,6 +498,7 @@ textarea.task__form-input {
 .task__form-group {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.375rem;
     width: 100%;
 }
@@ -534,7 +544,6 @@ textarea.task__form-input {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #505050;
 }
 
 .btn__show-more svg {
@@ -558,18 +567,47 @@ textarea.task__form-input {
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
     padding: 0.5rem;
-    background: #505050;
     box-shadow: 0 0 1.25rem var(--color-bg-20);
+    border: 0.0625rem solid var(--color-main-10);
+    backdrop-filter: blur(1.25rem);
+    -webkit-backdrop-filter: blur(1.25rem);
 }
 
-body[data-theme="light"] .btn__show-more,
-body[data-theme="light"] .task__full-additional-content,
-body[data-theme="light"] .task__datepicker {
-    background: #999999;
+.btn__show-more,
+.datepicker,
+.task__full-additional-content {
+    background-color: var(--color-main-10);
 }
 
+body[data-theme="light"] .datepicker,
 body[data-theme="light"] .task__full-additional-content {
+    background-color: var(--color-bg-50);
+}
+
+body[data-theme="light"] .btn__show-more {
+    background-color: var(--color-main-10);
+}
+
+body[data-theme="light"] .task__full-additional-content,
+body[data-theme="light"] .datepicker {
     box-shadow: 0 0 1.25rem var(--color-main-20);
+}
+
+body[data-theme="light"] .datepicker__day.selected {
+    color: var(--color-bg-100);
+}
+
+body[data-theme="light"] .task__full-additional-content .btn {
+    color: #000000;
+}
+
+body[data-theme="light"] .btn__show-more {
+    border: 0.0625rem solid var(--color-main-10) rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .task__full-additional-content .btn path,
+body[data-theme="light"] .btn__show-more circle {
+    fill: #000000;
 }
 
 .task__full-additional[data-active="true"] .task__full-additional-content {
@@ -666,6 +704,89 @@ body[data-theme="light"] .task__full-additional-content {
 
 .theme-toggle input:checked~label {
     background-color: var(--color-status-green);
+}
+
+.task__form-group-deadline {
+    position: relative;
+}
+
+.datepicker {
+    box-shadow: 0 0 1.25rem var(--color-bg-20);
+    border: 0.0625rem solid var(--color-main-10);
+    border-radius: 0.625rem;
+    transition: opacity 0.3s, transform 0.3s;
+    position: absolute;
+    z-index: 10;
+    opacity: 0;
+    top: 1.25rem;
+    left: 0;
+    transform: translateY(-20%);
+    padding: 0.5rem;
+    color: var(--color-main-100);
+    backdrop-filter: blur(1.25rem);
+    -webkit-backdrop-filter: blur(1.25rem);
+}
+
+.datepicker[data-active="true"] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.datepicker__day,
+.datepicker__weekdays th {
+    padding: 0.5rem;
+    text-align: center;
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+.datepicker__title {
+    text-align: left;
+    padding: 0.5rem;
+}
+
+.datepicker__day.disabled {
+    color: var(--color-main-20);
+    cursor: default;
+}
+
+.datepicker__nav {
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    padding: 0.5rem;
+}
+
+.datepicker__day {
+    cursor: pointer;
+}
+
+.datepicker__table {
+    border-collapse: collapse;
+}
+
+.datepicker__nav path {
+    transition: fill 0.3s ease;
+    fill: var(--color-main-100);
+}
+
+.datepicker__day.selected {
+    position: relative;
+    isolation: isolate;
+}
+
+.datepicker__day.selected:before {
+    content: '';
+    position: absolute;
+    width: 1.75rem;
+    height: 1.75rem;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-status-blue);
+    border-radius: 50%;
+    z-index: -1;
 }
 
 @keyframes spin {
