@@ -694,6 +694,5 @@ window.addEventListener("DOMContentLoaded", () => {
     handleFilters();
     handleAdd();
     loadTasks();
-    // renderTasks(allTasks);
     handleTheme();
 });
