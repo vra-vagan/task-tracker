@@ -56,315 +56,6 @@ ${new Date(task.createdAt).toLocaleString("ru-RU")}
     });
 };
 
-const insertModal = (content, title = "Добавить задачу") => {
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    const modalContainer = document.createElement("div");
-    modalContainer.className = "modal__container";
-
-    const modalHeader = document.createElement("div");
-    modalHeader.className = "modal__header";
-
-    const modalTitle = document.createElement("h1");
-    modalTitle.className = "modal__title";
-    modalTitle.textContent = title;
-
-    const modalClose = document.createElement("button");
-    modalClose.className = "modal__close";
-    modalClose.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15.5133 2.73323L10.2715 7.97504L15.5133 13.2668C16.1622 13.8658 16.1622 14.9142 15.5133 15.5133C14.9142 16.1622 13.8658 16.1622 13.2668 15.5133L8.02496 10.2715L2.73323 15.5133C2.13417 16.1622 1.0858 16.1622 0.486739 15.5133C-0.162246 14.9142 -0.162246 13.8658 0.486739 13.2668L5.72855 7.97504L0.486739 2.73323C-0.162246 2.13417 -0.162246 1.0858 0.486739 0.486739C1.0858 -0.162246 2.13417 -0.162246 2.73323 0.486739L8.02496 5.72855L13.2668 0.486739C13.8658 -0.162246 14.9142 -0.162246 15.5133 0.486739C16.1622 1.0858 16.1622 2.13417 15.5133 2.73323Z" fill="white"/>
-        </svg>
-    `;
-
-    const modalContent = document.createElement("div");
-    modalContent.className = "modal__content";
-    modalContent.append(content);
-
-    modalHeader.append(modalTitle, modalClose);
-    modalContainer.append(modalHeader, modalContent);
-    modal.append(modalContainer);
-    document.body.append(modal);
-
-    modal.addEventListener("click", (e) => {
-        const target = e.target;
-        if (!target || target.closest(".modal__container")) return;
-
-        closeModal(e);
-    });
-    modalClose.addEventListener("click", (e) => closeModal(e));
-
-    setTimeout(() => {
-        modal.dataset.active = "true";
-    }, 0);
-};
-
-const closeModal = (e) => {
-    const target = e.target;
-    if (!target) return;
-    const modal = target.closest(".modal");
-    if (!modal) return;
-    modal.dataset.active = "false";
-    setTimeout(() => {
-        modal.remove();
-    }, 300);
-};
-
-const handleAdd = () => {
-    document.querySelector(".content__header-add")?.addEventListener("click", () => {
-        const addForm = createTaskForm();
-        insertModal(addForm, "Добавить задачу");
-
-        addForm.addEventListener("submit", (e) => handleTaskSubmit(e));
-        addForm.querySelector(".task__form-cancel").addEventListener("click", closeModal);
-    });
-};
-
-const updateTaskStatus = async (e, id, status) => {
-    const btn = e.currentTarget;
-    btn.classList.add("loading");
-    btn.disabled = true;
-    const taskRef = doc(db, "tasks", id);
-    await updateDoc(taskRef, {
-        status,
-        ...(status === "in_progress" ? { startedAt: new Date().toISOString() } : { finishedAt: new Date().toISOString() }),
-    });
-    loadTasks();
-    closeModal(e);
-};
-
-const createTaskContent = (task) => {
-    const content = document.createElement("div");
-    content.className = "task__full";
-    content.dataset.id = task.id;
-
-    const descrWithLinks = convertLinksToAnchors(task.description || "");
-    content.innerHTML = `
-        <p class="task__full-description">${descrWithLinks}</p>
-        <div class="task__full-links">
-            ${task.tzLink ? `<a href="${task.tzLink}" class="task__link task__full-link-t" target="_blank">Смотреть ТЗ</a>` : ""}
-            ${task.figmaLink ? `<a href="${task.figmaLink}" class="task__link task__full-link-f" target="_blank">Смотреть макет</a>` : ""}
-        </div>
-        <p class="task__full-createdBy">Автор: <span>${task.createdBy || ""}</span></p>
-        <div class="task__form-actions">
-            ${
-                task.status !== "done"
-                    ? `<button class="task__accept ${task.status === "created" ? "btn" : "btn btn__green"}">${task.status === "created" ? "Начать задачу" : "Завершить задачу"}</button>`
-                    : ""
-            }
-            <div class="task__full-additional">
-                <button class="btn btn__show-more">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="3" cy="8" r="1.5" fill="white"/>
-                        <circle cx="8" cy="8" r="1.5" fill="white"/>
-                        <circle cx="13" cy="8" r="1.5" fill="white"/>
-                    </svg>
-                </button>
-                <div class="task__full-additional-content" data-active="false">
-                    <button class="task__edit btn">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.4" d="M9.49219 2.43876L11.3383 0.594057C11.745 0.187597 12.2457 0 12.7776 0C13.2782 0 13.7789 0.187597 14.1856 0.594057L15.4059 1.81344C15.8127 2.2199 16.0005 2.72016 16.0005 3.22042C16.0005 3.75194 15.8127 4.2522 15.4059 4.65866C14.7802 5.28398 14.1544 5.90931 13.5599 6.50337C12.1831 5.15892 10.8376 3.81447 9.49219 2.43876Z" fill="white"/>
-                            <path d="M13.5594 6.50406L5.70568 14.3519C5.51794 14.5395 5.23634 14.6958 4.95473 14.7896L0.949643 15.9777C0.699325 16.0402 0.417718 15.9777 0.229979 15.7588C0.0109514 15.5712 -0.051628 15.2899 0.0422411 15.0397L1.19996 11.0377C1.29383 10.7563 1.45028 10.4749 1.63802 10.2873L9.49174 2.43945L13.5594 6.50406Z" fill="white"/>
-                        </svg>
-                        <span>Редактировать</span>
-                    </button>
-                    <div class="divider"></div>
-                    <button class="task__delete btn">
-                        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.4" d="M1 3H13L12.3125 14.5938C12.2813 15.4063 11.625 16 10.8125 16H3.15625C2.34375 16 1.6875 15.4063 1.65625 14.5938L1 3Z" fill="white"/>
-                            <path d="M5.09375 0H8.875C9.25 0 9.59375 0.21875 9.75 0.5625L10 1H13C13.5313 1 14 1.46875 14 2C14 2.5625 13.5313 3 13 3H1C0.4375 3 0 2.5625 0 2C0 1.46875 0.4375 1 1 1H4L4.21875 0.5625C4.375 0.21875 4.71875 0 5.09375 0Z" fill="white"/>
-                        </svg>
-                        <span>Удалить</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    return content;
-};
-
-const attachModalActions = (modal, content, task) => {
-    const modalContent = modal.querySelector(".modal__content");
-    const modalTitle = modal.querySelector(".modal__title");
-    const oldTitle = modalTitle.innerText;
-    const status = task.status === "created" ? "in_progress" : "done";
-    const acceptBtn = content.querySelector(".task__accept");
-    if (acceptBtn) acceptBtn.addEventListener("click", (e) => updateTaskStatus(e, task.id, status));
-
-    const editBtn = content.querySelector(".task__edit");
-    editBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const values = {
-            title: task.title || "",
-            description: task.description || "",
-            createdBy: task.createdBy || "",
-            tzLink: task.tzLink || "",
-            figmaLink: task.figmaLink || "",
-        };
-        const editForm = createTaskForm(values, true);
-        modalContent.innerHTML = "";
-        modalContent.append(editForm);
-        modalTitle.innerText = "Изменить задачу";
-        editForm.addEventListener("submit", (e) => handleTaskSubmit(e, task.id));
-        editForm.querySelector(".task__form-cancel")?.addEventListener("click", () => {
-            const restoredContent = createTaskContent(task);
-            modalContent.innerHTML = "";
-            modalContent.append(restoredContent);
-            modalTitle.innerText = oldTitle;
-            attachModalActions(modal, restoredContent, task);
-        });
-    });
-
-    const deleteBtn = content.querySelector(".task__delete");
-    deleteBtn.addEventListener("click", async (ev) => {
-        deleteBtn.classList.add("loading");
-        deleteBtn.disabled = true;
-
-        const taskRef = doc(db, "tasks", task.id);
-        await deleteDoc(taskRef);
-        loadTasks();
-        closeModal(ev);
-    });
-
-    const showMoreBtn = content.querySelector(".btn__show-more");
-    if (showMoreBtn) {
-        showMoreBtn.addEventListener("click", (e) => {
-            const target = e.target;
-            const additionalContainer = target.closest(".task__full-additional");
-            if (!additionalContainer) return;
-            additionalContainer.dataset.active = additionalContainer.dataset.active === "true" ? "false" : "true";
-        });
-
-        modal.addEventListener("click", (ev) => {
-            const isInside = ev.target.closest(".task__full-additional-content");
-            const isButton = ev.target.closest(".btn__show-more");
-
-            const additional = modal.querySelector(".task__full-additional[data-active='true']");
-            if (additional && !isInside && !isButton) {
-                additional.dataset.active = "false";
-            }
-        });
-    }
-};
-
-const createTaskForm = (values = {}, isEdit = false) => {
-    const { title = "", description = "", createdBy = "", tzLink = "", figmaLink = "" } = values;
-
-    const form = document.createElement("form");
-    form.className = "task__form";
-    form.innerHTML = `
-        <div class="task__form-group">
-            <label for="add-task__title">Название задачи</label>
-            <input type="text" id="add-task__title" class="task__form-input" placeholder="Например: Сверстать главную страницу" value="${title}" autocomplete="off" required />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__description">Описание задачи</label>
-            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи..." rows="6" required>${description}</textarea>
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__tzLink">Ссылка на ТЗ</label>
-            <input type="url" id="add-task__tzLink" class="task__form-input" placeholder="https://..." value="${tzLink}" autocomplete="off" />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__figmaLink">Ссылка на макет</label>
-            <input type="url" id="add-task__figmaLink" class="task__form-input" placeholder="https://www.figma.com/..." value="${figmaLink}" autocomplete="off" />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__createdBy">Кто поставил задачу</label>
-            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Например: Аня" value="${createdBy}" autocomplete="off" required />
-        </div>
-        <div class="task__form-actions">
-            <button type="submit" class="task__form-submit btn">${isEdit ? "Сохранить" : "Добавить"}</button>
-            <button type="button" class="task__form-cancel btn btn__red">Отмена</button>
-        </div>
-    `;
-    return form;
-};
-
-const convertLinksToAnchors = (text) => {
-    return text.replace(/(?<!href="|">)((https?:\/\/|www\.)[^\s<>()\]]+[^\s<>,.?!:;()\]])/gi, (match) => {
-        let url = match;
-
-        if (!/^https?:\/\//i.test(url)) {
-            url = "https://" + url;
-        }
-
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
-    });
-};
-
-const handleTaskClick = () => {
-    document.querySelectorAll(".task").forEach((taskItem) => {
-        taskItem.addEventListener("click", (e) => {
-            if (e.target.closest(".task__link")) return;
-
-            const taskId = taskItem.dataset.id || "";
-            const task = allTasks.find((t) => t.id === taskId);
-            if (!task) return;
-
-            const content = createTaskContent(task);
-            insertModal(content, task.title || "");
-            const modal = document.querySelector(".modal");
-            attachModalActions(modal, content, task);
-        });
-    });
-};
-
-const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
-    e.preventDefault();
-
-    const title = document.querySelector("#add-task__title")?.value.trim();
-    const description = document.querySelector("#add-task__description")?.value.trim();
-    const createdBy = document.querySelector("#add-task__createdBy")?.value.trim();
-    const tzLink = document.querySelector("#add-task__tzLink")?.value.trim();
-    const figmaLink = document.querySelector("#add-task__figmaLink")?.value.trim();
-
-    if (!title || !description || !createdBy) return;
-
-    const submitBtn = e.submitter;
-    submitBtn.classList.add("loading");
-    submitBtn.disabled = true;
-
-    const task = {
-        title,
-        description,
-        createdBy,
-        tzLink,
-        figmaLink,
-        createdAt: new Date().toISOString(),
-        status: currentStatus,
-    };
-
-    if (id) {
-        const taskRef = doc(db, "tasks", id);
-        await updateDoc(taskRef, task);
-    } else {
-        await addDoc(tasksRef, task);
-        sendToTelegram(task);
-        e.target.reset();
-    }
-
-    loadTasks();
-    closeModal(e);
-};
-
-const getTimeLeftToLocalMidnight = (deadlineStr) => {
-    const now = new Date();
-
-    const [year, month, day] = deadlineStr.split("-").map(Number);
-    const deadlineLocal = new Date(year, month - 1, day);
-
-    const diffMs = deadlineLocal - now;
-
-    if (diffMs <= 0) return "0 м";
-
-    const diffMins = Math.floor(diffMs / 1000 / 60);
-    const hours = Math.floor(diffMins / 60);
-    const minutes = diffMins % 60;
-
-    return `${hours} ч ${minutes} м`;
-};
-
 const renderTasks = (tasks) => {
     const container = document.querySelector(".content__tasks");
     container.innerHTML = "";
@@ -474,6 +165,315 @@ const renderTasks = (tasks) => {
     handleTaskClick();
     startDeadlineTimers();
     container.classList.remove("loading");
+};
+
+const createTaskContent = (task) => {
+    const content = document.createElement("div");
+    content.className = "task__full";
+    content.dataset.id = task.id;
+
+    const descrWithLinks = convertLinksToAnchors(task.description || "");
+    content.innerHTML = `
+        <p class="task__full-description">${descrWithLinks}</p>
+        <div class="task__full-links">
+            ${task.tzLink ? `<a href="${task.tzLink}" class="task__link task__full-link-t" target="_blank">Смотреть ТЗ</a>` : ""}
+            ${task.figmaLink ? `<a href="${task.figmaLink}" class="task__link task__full-link-f" target="_blank">Смотреть макет</a>` : ""}
+        </div>
+        <p class="task__full-createdBy">Автор: <span>${task.createdBy || ""}</span></p>
+        <div class="task__form-actions">
+            ${
+                task.status !== "done"
+                    ? `<button class="task__accept ${task.status === "created" ? "btn" : "btn btn__green"}">${task.status === "created" ? "Начать задачу" : "Завершить задачу"}</button>`
+                    : ""
+            }
+            <div class="task__full-additional">
+                <button class="btn btn__show-more">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="3" cy="8" r="1.5" fill="white"/>
+                        <circle cx="8" cy="8" r="1.5" fill="white"/>
+                        <circle cx="13" cy="8" r="1.5" fill="white"/>
+                    </svg>
+                </button>
+                <div class="task__full-additional-content" data-active="false">
+                    <button class="task__edit btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.4" d="M9.49219 2.43876L11.3383 0.594057C11.745 0.187597 12.2457 0 12.7776 0C13.2782 0 13.7789 0.187597 14.1856 0.594057L15.4059 1.81344C15.8127 2.2199 16.0005 2.72016 16.0005 3.22042C16.0005 3.75194 15.8127 4.2522 15.4059 4.65866C14.7802 5.28398 14.1544 5.90931 13.5599 6.50337C12.1831 5.15892 10.8376 3.81447 9.49219 2.43876Z" fill="white"/>
+                            <path d="M13.5594 6.50406L5.70568 14.3519C5.51794 14.5395 5.23634 14.6958 4.95473 14.7896L0.949643 15.9777C0.699325 16.0402 0.417718 15.9777 0.229979 15.7588C0.0109514 15.5712 -0.051628 15.2899 0.0422411 15.0397L1.19996 11.0377C1.29383 10.7563 1.45028 10.4749 1.63802 10.2873L9.49174 2.43945L13.5594 6.50406Z" fill="white"/>
+                        </svg>
+                        <span>Редактировать</span>
+                    </button>
+                    <div class="divider"></div>
+                    <button class="task__delete btn">
+                        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.4" d="M1 3H13L12.3125 14.5938C12.2813 15.4063 11.625 16 10.8125 16H3.15625C2.34375 16 1.6875 15.4063 1.65625 14.5938L1 3Z" fill="white"/>
+                            <path d="M5.09375 0H8.875C9.25 0 9.59375 0.21875 9.75 0.5625L10 1H13C13.5313 1 14 1.46875 14 2C14 2.5625 13.5313 3 13 3H1C0.4375 3 0 2.5625 0 2C0 1.46875 0.4375 1 1 1H4L4.21875 0.5625C4.375 0.21875 4.71875 0 5.09375 0Z" fill="white"/>
+                        </svg>
+                        <span>Удалить</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    return content;
+};
+
+const createTaskForm = (values = {}, isEdit = false) => {
+    const { title = "", description = "", createdBy = "", tzLink = "", figmaLink = "" } = values;
+
+    const form = document.createElement("form");
+    form.className = "task__form";
+    form.innerHTML = `
+        <div class="task__form-group">
+            <label for="add-task__title">Название задачи</label>
+            <input type="text" id="add-task__title" class="task__form-input" placeholder="Например: Сверстать главную страницу" value="${title}" autocomplete="off" required />
+        </div>
+        <div class="task__form-group">
+            <label for="add-task__description">Описание задачи</label>
+            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи..." rows="6" required>${description}</textarea>
+        </div>
+        <div class="task__form-group">
+            <label for="add-task__tzLink">Ссылка на ТЗ</label>
+            <input type="url" id="add-task__tzLink" class="task__form-input" placeholder="https://..." value="${tzLink}" autocomplete="off" />
+        </div>
+        <div class="task__form-group">
+            <label for="add-task__figmaLink">Ссылка на макет</label>
+            <input type="url" id="add-task__figmaLink" class="task__form-input" placeholder="https://www.figma.com/..." value="${figmaLink}" autocomplete="off" />
+        </div>
+        <div class="task__form-group">
+            <label for="add-task__createdBy">Кто поставил задачу</label>
+            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Например: Аня" value="${createdBy}" autocomplete="off" required />
+        </div>
+        <div class="task__form-actions">
+            <button type="submit" class="task__form-submit btn">${isEdit ? "Сохранить" : "Добавить"}</button>
+            <button type="button" class="task__form-cancel btn btn__red">Отмена</button>
+        </div>
+    `;
+    return form;
+};
+
+const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
+    e.preventDefault();
+
+    const title = document.querySelector("#add-task__title")?.value.trim();
+    const description = document.querySelector("#add-task__description")?.value.trim();
+    const createdBy = document.querySelector("#add-task__createdBy")?.value.trim();
+    const tzLink = document.querySelector("#add-task__tzLink")?.value.trim();
+    const figmaLink = document.querySelector("#add-task__figmaLink")?.value.trim();
+
+    if (!title || !description || !createdBy) return;
+
+    const submitBtn = e.submitter;
+    submitBtn.classList.add("loading");
+    submitBtn.disabled = true;
+
+    const task = {
+        title,
+        description,
+        createdBy,
+        tzLink,
+        figmaLink,
+        createdAt: new Date().toISOString(),
+        status: currentStatus,
+    };
+
+    if (id) {
+        const taskRef = doc(db, "tasks", id);
+        await updateDoc(taskRef, task);
+    } else {
+        await addDoc(tasksRef, task);
+        sendToTelegram(task);
+        e.target.reset();
+    }
+
+    loadTasks();
+    closeModal(e);
+};
+
+const updateTaskStatus = async (e, id, status) => {
+    const btn = e.currentTarget;
+    btn.classList.add("loading");
+    btn.disabled = true;
+    const taskRef = doc(db, "tasks", id);
+    await updateDoc(taskRef, {
+        status,
+        ...(status === "in_progress" ? { startedAt: new Date().toISOString() } : { finishedAt: new Date().toISOString() }),
+    });
+    loadTasks();
+    closeModal(e);
+};
+
+const handleTaskClick = () => {
+    document.querySelectorAll(".task").forEach((taskItem) => {
+        taskItem.addEventListener("click", (e) => {
+            if (e.target.closest(".task__link")) return;
+
+            const taskId = taskItem.dataset.id || "";
+            const task = allTasks.find((t) => t.id === taskId);
+            if (!task) return;
+
+            const content = createTaskContent(task);
+            insertModal(content, task.title || "");
+            const modal = document.querySelector(".modal");
+            attachModalActions(modal, content, task);
+        });
+    });
+};
+
+const handleAdd = () => {
+    document.querySelector(".content__header-add")?.addEventListener("click", () => {
+        const addForm = createTaskForm();
+        insertModal(addForm, "Добавить задачу");
+
+        addForm.addEventListener("submit", (e) => handleTaskSubmit(e));
+        addForm.querySelector(".task__form-cancel").addEventListener("click", closeModal);
+    });
+};
+
+const insertModal = (content, title = "Добавить задачу") => {
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    const modalContainer = document.createElement("div");
+    modalContainer.className = "modal__container";
+
+    const modalHeader = document.createElement("div");
+    modalHeader.className = "modal__header";
+
+    const modalTitle = document.createElement("h1");
+    modalTitle.className = "modal__title";
+    modalTitle.textContent = title;
+
+    const modalClose = document.createElement("button");
+    modalClose.className = "modal__close";
+    modalClose.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5133 2.73323L10.2715 7.97504L15.5133 13.2668C16.1622 13.8658 16.1622 14.9142 15.5133 15.5133C14.9142 16.1622 13.8658 16.1622 13.2668 15.5133L8.02496 10.2715L2.73323 15.5133C2.13417 16.1622 1.0858 16.1622 0.486739 15.5133C-0.162246 14.9142 -0.162246 13.8658 0.486739 13.2668L5.72855 7.97504L0.486739 2.73323C-0.162246 2.13417 -0.162246 1.0858 0.486739 0.486739C1.0858 -0.162246 2.13417 -0.162246 2.73323 0.486739L8.02496 5.72855L13.2668 0.486739C13.8658 -0.162246 14.9142 -0.162246 15.5133 0.486739C16.1622 1.0858 16.1622 2.13417 15.5133 2.73323Z" fill="white"/>
+        </svg>
+    `;
+
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal__content";
+    modalContent.append(content);
+
+    modalHeader.append(modalTitle, modalClose);
+    modalContainer.append(modalHeader, modalContent);
+    modal.append(modalContainer);
+    document.body.append(modal);
+
+    modal.addEventListener("click", (e) => {
+        const target = e.target;
+        if (!target || target.closest(".modal__container")) return;
+
+        closeModal(e);
+    });
+    modalClose.addEventListener("click", (e) => closeModal(e));
+
+    setTimeout(() => {
+        modal.dataset.active = "true";
+    }, 0);
+};
+
+const closeModal = (e) => {
+    const target = e.target;
+    if (!target) return;
+    const modal = target.closest(".modal");
+    if (!modal) return;
+    modal.dataset.active = "false";
+    setTimeout(() => {
+        modal.remove();
+    }, 300);
+};
+
+const attachModalActions = (modal, content, task) => {
+    const modalContent = modal.querySelector(".modal__content");
+    const modalTitle = modal.querySelector(".modal__title");
+    const oldTitle = modalTitle.innerText;
+    const status = task.status === "created" ? "in_progress" : "done";
+    const acceptBtn = content.querySelector(".task__accept");
+    if (acceptBtn) acceptBtn.addEventListener("click", (e) => updateTaskStatus(e, task.id, status));
+
+    const editBtn = content.querySelector(".task__edit");
+    editBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const values = {
+            title: task.title || "",
+            description: task.description || "",
+            createdBy: task.createdBy || "",
+            tzLink: task.tzLink || "",
+            figmaLink: task.figmaLink || "",
+        };
+        const editForm = createTaskForm(values, true);
+        modalContent.innerHTML = "";
+        modalContent.append(editForm);
+        modalTitle.innerText = "Изменить задачу";
+        editForm.addEventListener("submit", (e) => handleTaskSubmit(e, task.id));
+        editForm.querySelector(".task__form-cancel")?.addEventListener("click", () => {
+            const restoredContent = createTaskContent(task);
+            modalContent.innerHTML = "";
+            modalContent.append(restoredContent);
+            modalTitle.innerText = oldTitle;
+            attachModalActions(modal, restoredContent, task);
+        });
+    });
+
+    const deleteBtn = content.querySelector(".task__delete");
+    deleteBtn.addEventListener("click", async (ev) => {
+        deleteBtn.classList.add("loading");
+        deleteBtn.disabled = true;
+
+        const taskRef = doc(db, "tasks", task.id);
+        await deleteDoc(taskRef);
+        loadTasks();
+        closeModal(ev);
+    });
+
+    const showMoreBtn = content.querySelector(".btn__show-more");
+    if (showMoreBtn) {
+        showMoreBtn.addEventListener("click", (e) => {
+            const target = e.target;
+            const additionalContainer = target.closest(".task__full-additional");
+            if (!additionalContainer) return;
+            additionalContainer.dataset.active = additionalContainer.dataset.active === "true" ? "false" : "true";
+        });
+
+        modal.addEventListener("click", (ev) => {
+            const isInside = ev.target.closest(".task__full-additional-content");
+            const isButton = ev.target.closest(".btn__show-more");
+
+            const additional = modal.querySelector(".task__full-additional[data-active='true']");
+            if (additional && !isInside && !isButton) {
+                additional.dataset.active = "false";
+            }
+        });
+    }
+};
+
+const convertLinksToAnchors = (text) => {
+    return text.replace(/(?<!href="|">)((https?:\/\/|www\.)[^\s<>()\]]+[^\s<>,.?!:;()\]])/gi, (match) => {
+        let url = match;
+
+        if (!/^https?:\/\//i.test(url)) {
+            url = "https://" + url;
+        }
+
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+    });
+};
+
+const getTimeLeftToLocalMidnight = (deadlineStr) => {
+    const now = new Date();
+
+    const [year, month, day] = deadlineStr.split("-").map(Number);
+    const deadlineLocal = new Date(year, month - 1, day);
+
+    const diffMs = deadlineLocal - now;
+
+    if (diffMs <= 0) return "0 м";
+
+    const diffMins = Math.floor(diffMs / 1000 / 60);
+    const hours = Math.floor(diffMins / 60);
+    const minutes = diffMins % 60;
+
+    return `${hours} ч ${minutes} м`;
 };
 
 const handleFilters = () => {
