@@ -111,10 +111,10 @@ const closeModal = (e) => {
 
 const handleAdd = () => {
     document.querySelector(".content__header-add")?.addEventListener("click", () => {
-        const addForm = buildTaskForm();
+        const addForm = createTaskForm();
         insertModal(addForm, "Добавить задачу");
 
-        addForm.addEventListener("submit", submitTask);
+        addForm.addEventListener("submit", (e) => handleTaskSubmit(e));
         addForm.querySelector(".task__form-cancel").addEventListener("click", closeModal);
     });
 };
@@ -200,11 +200,11 @@ const attachModalActions = (modal, content, task) => {
             tzLink: task.tzLink || "",
             figmaLink: task.figmaLink || "",
         };
-        const editForm = buildTaskForm(values, true);
+        const editForm = createTaskForm(values, true);
         modalContent.innerHTML = "";
         modalContent.append(editForm);
         modalTitle.innerText = "Изменить задачу";
-        editForm.addEventListener("submit", (ev) => updateTask(ev, task.id));
+        editForm.addEventListener("submit", (e) => handleTaskSubmit(e, task.id));
         editForm.querySelector(".task__form-cancel")?.addEventListener("click", () => {
             const restoredContent = createTaskContent(task);
             modalContent.innerHTML = "";
@@ -246,7 +246,7 @@ const attachModalActions = (modal, content, task) => {
     }
 };
 
-const buildTaskForm = (values = {}, isEdit = false) => {
+const createTaskForm = (values = {}, isEdit = false) => {
     const { title = "", description = "", createdBy = "", tzLink = "", figmaLink = "" } = values;
 
     const form = document.createElement("form");
@@ -309,40 +309,7 @@ const handleTaskClick = () => {
     });
 };
 
-const submitTask = async (e) => {
-    e.preventDefault();
-
-    const title = document.querySelector("#add-task__title").value.trim();
-    const description = document.querySelector("#add-task__description").value.trim();
-    const createdBy = document.querySelector("#add-task__createdBy").value.trim();
-    const tzLink = document.querySelector("#add-task__tzLink").value.trim();
-    const figmaLink = document.querySelector("#add-task__figmaLink").value.trim();
-
-    if (!title || !description || !createdBy) return;
-
-    const task = {
-        title,
-        description,
-        status: "created",
-        createdBy,
-        tzLink,
-        figmaLink,
-        createdAt: new Date().toISOString(),
-    };
-
-    const submitBtn = e.submitter;
-    submitBtn.classList.add("loading");
-    submitBtn.disabled = true;
-
-    await addDoc(tasksRef, task);
-    sendToTelegram(task);
-    e.target.reset();
-
-    loadTasks();
-    closeModal(e);
-};
-
-const updateTask = async (e, id, status = "created") => {
+const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
     e.preventDefault();
 
     const title = document.querySelector("#add-task__title")?.value.trim();
@@ -353,28 +320,31 @@ const updateTask = async (e, id, status = "created") => {
 
     if (!title || !description || !createdBy) return;
 
-    const task = {
-        title,
-        description,
-        status,
-        createdBy,
-        tzLink,
-        figmaLink,
-        createdAt: new Date().toISOString(),
-    };
-
     const submitBtn = e.submitter;
     submitBtn.classList.add("loading");
     submitBtn.disabled = true;
 
-    const taskRef = doc(db, "tasks", id);
-    await updateDoc(taskRef, task);
+    const task = {
+        title,
+        description,
+        createdBy,
+        tzLink,
+        figmaLink,
+        createdAt: new Date().toISOString(),
+        status: currentStatus,
+    };
+
+    if (id) {
+        const taskRef = doc(db, "tasks", id);
+        await updateDoc(taskRef, task);
+    } else {
+        await addDoc(tasksRef, task);
+        sendToTelegram(task);
+        e.target.reset();
+    }
 
     loadTasks();
-
-    if (e && e.target) {
-        closeModal(e);
-    }
+    closeModal(e);
 };
 
 const renderTasks = (tasks) => {
