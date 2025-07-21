@@ -1,67 +1,27 @@
-// import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-// import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// const firebaseConfig = {
-//     apiKey: "AIzaSyDur-_Gm0ZQOhdNwlzX5Aea-FSMXnXfyOM",
-//     authDomain: "tasks-cifrium.firebaseapp.com",
-//     projectId: "tasks-cifrium",
-//     storageBucket: "tasks-cifrium.firebasestorage.app",
-//     messagingSenderId: "969489877277",
-//     appId: "1:969489877277:web:4b22747d40819df432b9f4",
-//     measurementId: "G-8BM9F20HJM",
-// };
+const firebaseConfig = {
+    apiKey: "AIzaSyDur-_Gm0ZQOhdNwlzX5Aea-FSMXnXfyOM",
+    authDomain: "tasks-cifrium.firebaseapp.com",
+    projectId: "tasks-cifrium",
+    storageBucket: "tasks-cifrium.firebasestorage.app",
+    messagingSenderId: "969489877277",
+    appId: "1:969489877277:web:4b22747d40819df432b9f4",
+    measurementId: "G-8BM9F20HJM",
+};
 
-// const BOT_TOKEN = "7399906374:AAEZt86SEiN8vqwqpeXwf-foSmrpNNuQu60";
-// const CHAT_ID = "262304440";
+const BOT_TOKEN = "7399906374:AAEZt86SEiN8vqwqpeXwf-foSmrpNNuQu60";
+const CHAT_ID = "262304440";
 
-// const app = initializeApp(firebaseConfig);
-// const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// const tasksRef = collection(db, "tasks");
+const tasksRef = collection(db, "tasks");
 
 let deadlineTimerInterval;
 let currentStatus = "all";
-let allTasks = [
-    {
-        id: "VSh51V1eUuDGdUefgQZv",
-        title: "ДШ: подключить коллтач",
-        status: "created",
-        deadLine: "2025-07-22",
-        createdBy: "Лола",
-        description:
-            'Ваган, привет! Ранее обсуждали подключение коллтач к сайтам ДШ по инструкции https://www.calltouch.ru/support/kak-podklyuchit-zayavki-s-sayta-k-otslezhivaniyu-calltouch/ \n\nСейчас Серёжа получил от коллтача такой фидбек:\n1. "На сайте cifrium.ru не установлен второй скрипт (на заполнение форм). Установите, пожалуйста"\n2. Скрипты также нужно поставить на поддомены gymn.cifrium.ru и school.cifrium.com\nИнтеграторы сказали, что они создадут поддомены в личном кабинете коллтач, поэтому скрипты уже можно устанавливать',
-        createdAt: "2025-07-17T09:14:10.680Z",
-        figmaLink: "",
-        tzLink: "",
-    },
-    {
-        id: "Ze6y1rKouKNUuagxPKT7",
-        createdAt: "2025-07-16T07:56:45.522Z",
-        finishedAt: "2025-07-16T14:48:11.810Z",
-        description: "Привет!\nМатцентр, снова мы) \nНадо на ленде (https://tilda.ru/projects/?projectid=13770219) поменять ролик, эти прислали новый. https://kinescope.io/itKg4SexZdzxrpFQUcBpgk",
-        createdBy: "Аня С.",
-        title: "Заменить ролик",
-        startedAt: "2025-07-16T14:46:11.810Z",
-        figmaLink: "",
-        tzLink: "",
-        status: "done",
-    },
-    {
-        id: "arlkATI4SoNfdesGkwsc",
-        startedAt: "2025-07-20T18:26:45.128Z",
-        deadLine: "2025-07-23",
-        description:
-            "Ваган, привет) Нужно сверстать лендинг основного КБ для детишек.\n\nЧто важно:\n1. Раздел с формой заявки верстать не нужно\n2. Пока никакие ссылки вшивать тоже не нужно\n3. Смотри, этот ленд очень похож на https://it.cifrium.ru/ НО у нашего текущего макета по ссылке выше другой шрифт. В связи с этим вопрос: можем ли мы сверстать этот лендинг на поддомене https://it.cifrium.ru/ (на какой-нибудь страничке этого пдодомена). Или мы сломаем стили и лучше завести отдельный поддомен?",
-        createdBy: "Аня",
-        title: "Задача по ИТ",
-        createdAt: "2025-07-20T18:26:22.840Z",
-        figmaLink:
-            "https://www.figma.com/design/2zgsWBDo3J8IzIVnsvfQ9k/%D0%9A%D0%91-%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D0%BE%D0%B9--%D0%BC%D0%B0%D0%BA%D0%B5%D1%82-%D0%BB%D0%B5%D0%BD%D0%B4%D0%B8%D0%BD%D0%B3%D0%B0-%D0%B4%D0%BB%D1%8F-%D0%B4%D0%B5%D1%82%D0%B5%D0%B9?node-id=2-16&t=xatZe6HKmlRT6k8A-4",
-        status: "in_progress",
-        tzLink: "https://docs.google.com/document/d/17k_54nO7ZDL5tSs65zS8xxlhmVxeZjlgF5ppyJgs3rM/edit?usp=sharing",
-        finishedAt: "2025-07-20T18:26:48.151Z",
-    },
-];
+let allTasks = [];
 
 const loadTasks = async () => {
     const taskContainer = document.querySelector(".content__tasks");
@@ -567,7 +527,6 @@ const updateAllDeadlines = () => {
 window.addEventListener("DOMContentLoaded", () => {
     handleFilters();
     handleAdd();
-    // loadTasks();
-    renderTasks(allTasks);
+    loadTasks();
     handleTheme();
 });
