@@ -1,0 +1,30 @@
+{
+    "name": "Таск-трекер",
+    "short_name": "Задачи Цифриум",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#171717",
+    "theme_color": "#ffffff",
+    "icons": [
+        {
+            "src": "./x180.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "./x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "./x256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "./x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
