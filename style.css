@@ -789,6 +789,10 @@ body[data-theme="light"] .btn__show-more circle {
     z-index: -1;
 }
 
+.task__form-input.error {
+    border-color: #ff3930;
+}
+
 @keyframes spin {
     to {
         transform: translate(-50%, -50%) rotate(360deg);

@@ -40,8 +40,9 @@ const sendToTelegram = (task) => {
 ${task.description}
 
 <b>От:</b> ${task.createdBy}
-<b>Figma:</b> <a href="${task.figmaLink || "#"}">${task.figmaLink || "—"}</a>
-<b>ТЗ:</b> <a href="${task.tzLink || "#"}">${task.tzLink || "—"}</a>
+${task.tzLink ? `<b>ТЗ:</b> <a href="${task.tzLink}">Смотреть ТЗ</a>` : ""}
+${task.figmaLink ? `<b>Figma:</b> <a href="${task.figmaLink}">Сотреть макет</a>` : ""}
+${task.deadLine ? `<b>Дедлайн:</b><p>${task.deadLine}</p>` : ""}
 ${new Date(task.createdAt).toLocaleString("ru-RU")}
     `;
 
@@ -227,15 +228,15 @@ const createTaskForm = (values = {}, isEdit = false) => {
     form.innerHTML = `
         <div class="task__form-group">
             <label for="add-task__title">Название задачи</label>
-            <input type="text" id="add-task__title" class="task__form-input" placeholder="Например: Сверстать главную страницу" value="${title}" autocomplete="off" required />
+            <input type="text" id="add-task__title" class="task__form-input" placeholder="Например: Сверстать главную страницу" value="${title}" autocomplete="off" />
         </div>
         <div class="task__form-group">
             <label for="add-task__description">Описание задачи</label>
-            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи..." rows="6" required>${description}</textarea>
+            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи..." rows="6">${description}</textarea>
         </div>
         <div class="task__form-group task__form-group-deadline">
             <label for="add-task__deadline">Отдать до</label>
-            <input type="text" id="add-task__deadline" class="task__form-input task__form-datepicker" placeholder="20.12.2012" data-deadline="${deadLine}" value="${deadLineStringRu}" autocomplete="off" required readonly />
+            <input type="text" id="add-task__deadline" class="task__form-input task__form-datepicker" placeholder="20.12.2012" data-deadline="${deadLine}" value="${deadLineStringRu}" autocomplete="off" readonly />
         </div>
         <div class="task__form-group">
             <label for="add-task__tzLink">Ссылка на ТЗ</label>
@@ -247,7 +248,7 @@ const createTaskForm = (values = {}, isEdit = false) => {
         </div>
         <div class="task__form-group">
             <label for="add-task__createdBy">Кто поставил задачу</label>
-            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Например: Аня" value="${createdBy}" autocomplete="off" required />
+            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Например: Аня" value="${createdBy}" autocomplete="off" />
         </div>
         <div class="task__form-actions">
             <button type="submit" class="task__form-submit btn">${isEdit ? "Сохранить" : "Добавить"}</button>
@@ -260,15 +261,37 @@ const createTaskForm = (values = {}, isEdit = false) => {
 const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
     e.preventDefault();
 
-    const title = document.querySelector("#add-task__title")?.value.trim();
-    const description = document.querySelector("#add-task__description")?.value.trim();
-    const createdBy = document.querySelector("#add-task__createdBy")?.value.trim();
-    const tzLink = document.querySelector("#add-task__tzLink")?.value.trim();
-    const figmaLink = document.querySelector("#add-task__figmaLink")?.value.trim();
-    const deadLine = document.querySelector("#add-task__deadline")?.value.trim();
-    const deadLineConverted = deadLine.split(".").reverse().join("-");
+    const titleInput = document.querySelector("#add-task__title");
+    const descriptionInput = document.querySelector("#add-task__description");
+    const createdByInput = document.querySelector("#add-task__createdBy");
+    const deadlineInput = document.querySelector("#add-task__deadline");
+    const tzLinkInput = document.querySelector("#add-task__tzLink");
+    const figmaLinkInput = document.querySelector("#add-task__figmaLink");
 
-    if (!title || !description || !createdBy || !deadLine) return;
+    const requiredFields = [titleInput, descriptionInput, createdByInput, deadlineInput];
+
+    let hasError = false;
+
+    requiredFields.forEach((input) => {
+        if (!input) return;
+        const value = input.value.trim();
+        if (!value) {
+            input.classList.add("error");
+            hasError = true;
+        } else {
+            input.classList.remove("error");
+        }
+    });
+
+    if (hasError) return;
+
+    const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const createdBy = createdByInput.value.trim();
+    const tzLink = tzLinkInput?.value.trim() || "";
+    const figmaLink = figmaLinkInput?.value.trim() || "";
+    const deadLine = deadlineInput.value.trim();
+    const deadLineConverted = deadLine.split(".").reverse().join("-");
 
     const submitBtn = e.submitter;
     submitBtn.classList.add("loading");
@@ -337,6 +360,13 @@ const handleAdd = () => {
         addForm.querySelector(".task__form-cancel").addEventListener("click", closeModal);
 
         handleDatepickerInput(addForm);
+        addForm.querySelectorAll(".task__form-input").forEach((input) => {
+            input.addEventListener("input", () => {
+                if (input.classList.contains("error") && input.value.trim() !== "") {
+                    input.classList.remove("error");
+                }
+            });
+        });
     });
 };
 
@@ -427,6 +457,13 @@ const attachModalActions = (modal, content, task) => {
         });
 
         handleDatepickerInput(editForm);
+        editForm.querySelectorAll(".task__form-input").forEach((input) => {
+            input.addEventListener("input", () => {
+                if (input.classList.contains("error") && input.value.trim() !== "") {
+                    input.classList.remove("error");
+                }
+            });
+        });
     });
 
     const deleteBtn = content.querySelector(".task__delete");
@@ -556,6 +593,7 @@ const handleDatepicker = (container, input) => {
                         const dataVal = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(obj.day).padStart(2, "0")}`;
                         input.value = val;
                         input.dataset.deadline = dataVal;
+                        input.dispatchEvent(new Event("input"));
                         closePicker(datepicker);
                     });
                 }
