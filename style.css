@@ -536,6 +536,7 @@ textarea.task__form-input {
 
 .task__full-description a {
     color: var(--color-status-blue);
+    word-break: break-all;
 }
 
 .btn__show-more {
