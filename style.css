@@ -897,6 +897,12 @@ body[data-theme="light"] .btn__show-more circle {
         border-radius: unset;
     }
 
+    .modal__content {
+        margin: 0;
+        padding: 1rem;
+        overflow-x: hidden;
+    }
+
     .modal {
         padding: 0;
     }
