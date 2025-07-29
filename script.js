@@ -196,21 +196,8 @@ const createTaskContent = (task) => {
                     </svg>
                 </button>
                 <div class="task__full-additional-content" data-active="false">
-                    <button class="task__edit btn">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.4" d="M9.49219 2.43876L11.3383 0.594057C11.745 0.187597 12.2457 0 12.7776 0C13.2782 0 13.7789 0.187597 14.1856 0.594057L15.4059 1.81344C15.8127 2.2199 16.0005 2.72016 16.0005 3.22042C16.0005 3.75194 15.8127 4.2522 15.4059 4.65866C14.7802 5.28398 14.1544 5.90931 13.5599 6.50337C12.1831 5.15892 10.8376 3.81447 9.49219 2.43876Z" fill="white"/>
-                            <path d="M13.5594 6.50406L5.70568 14.3519C5.51794 14.5395 5.23634 14.6958 4.95473 14.7896L0.949643 15.9777C0.699325 16.0402 0.417718 15.9777 0.229979 15.7588C0.0109514 15.5712 -0.051628 15.2899 0.0422411 15.0397L1.19996 11.0377C1.29383 10.7563 1.45028 10.4749 1.63802 10.2873L9.49174 2.43945L13.5594 6.50406Z" fill="white"/>
-                        </svg>
-                        <span>Редактировать</span>
-                    </button>
-                    <div class="divider"></div>
-                    <button class="task__delete btn">
-                        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path opacity="0.4" d="M1 3H13L12.3125 14.5938C12.2813 15.4063 11.625 16 10.8125 16H3.15625C2.34375 16 1.6875 15.4063 1.65625 14.5938L1 3Z" fill="white"/>
-                            <path d="M5.09375 0H8.875C9.25 0 9.59375 0.21875 9.75 0.5625L10 1H13C13.5313 1 14 1.46875 14 2C14 2.5625 13.5313 3 13 3H1C0.4375 3 0 2.5625 0 2C0 1.46875 0.4375 1 1 1H4L4.21875 0.5625C4.375 0.21875 4.71875 0 5.09375 0Z" fill="white"/>
-                        </svg>
-                        <span>Удалить</span>
-                    </button>
+                    <button class="task__edit btn">Редактировать</button>
+                    <button class="task__delete btn">Удалить</button>
                 </div>
             </div>
         </div>
@@ -227,28 +214,14 @@ const createTaskForm = (values = {}, isEdit = false) => {
     form.className = "task__form";
     form.innerHTML = `
         <div class="task__form-group">
-            <label for="add-task__title">Название задачи</label>
-            <input type="text" id="add-task__title" class="task__form-input" placeholder="Например: Сверстать главную страницу" value="${title}" autocomplete="off" />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__description">Описание задачи</label>
-            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи..." rows="6">${description}</textarea>
-        </div>
-        <div class="task__form-group task__form-group-deadline">
-            <label for="add-task__deadline">Отдать до</label>
-            <input type="text" id="add-task__deadline" class="task__form-input task__form-datepicker" placeholder="20.12.2012" data-deadline="${deadLine}" value="${deadLineStringRu}" autocomplete="off" readonly />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__tzLink">Ссылка на ТЗ</label>
-            <input type="url" id="add-task__tzLink" class="task__form-input" placeholder="https://..." value="${tzLink}" autocomplete="off" />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__figmaLink">Ссылка на макет</label>
-            <input type="url" id="add-task__figmaLink" class="task__form-input" placeholder="https://www.figma.com/..." value="${figmaLink}" autocomplete="off" />
-        </div>
-        <div class="task__form-group">
-            <label for="add-task__createdBy">Кто поставил задачу</label>
-            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Например: Аня" value="${createdBy}" autocomplete="off" />
+            <input type="text" id="add-task__title" class="task__form-input" placeholder="Название задачи" value="${title}" autocomplete="off" />
+            <textarea id="add-task__description" class="task__form-input" placeholder="Описание задачи" rows="6">${description}</textarea>
+            <div class="task__form-group-deadline">
+                <input type="text" id="add-task__deadline" class="task__form-input task__form-datepicker" placeholder="Отдать до" data-deadline="${deadLine}" value="${deadLineStringRu}" autocomplete="off" readonly />
+            </div>
+            <input type="url" id="add-task__tzLink" class="task__form-input" placeholder="Ссылка на ТЗ" value="${tzLink}" autocomplete="off" />
+            <input type="url" id="add-task__figmaLink" class="task__form-input" placeholder="Ссылка на макет" value="${figmaLink}" autocomplete="off" />
+            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Кто поставил задачу" value="${createdBy}" autocomplete="off" />
         </div>
         <div class="task__form-actions">
             <button type="submit" class="task__form-submit btn">${isEdit ? "Сохранить" : "Добавить"}</button>
@@ -384,10 +357,10 @@ const insertModal = (content, title = "Добавить задачу") => {
     modalTitle.textContent = title;
 
     const modalClose = document.createElement("button");
-    modalClose.className = "modal__close";
+    modalClose.className = "modal__close btn";
     modalClose.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15.5133 2.73323L10.2715 7.97504L15.5133 13.2668C16.1622 13.8658 16.1622 14.9142 15.5133 15.5133C14.9142 16.1622 13.8658 16.1622 13.2668 15.5133L8.02496 10.2715L2.73323 15.5133C2.13417 16.1622 1.0858 16.1622 0.486739 15.5133C-0.162246 14.9142 -0.162246 13.8658 0.486739 13.2668L5.72855 7.97504L0.486739 2.73323C-0.162246 2.13417 -0.162246 1.0858 0.486739 0.486739C1.0858 -0.162246 2.13417 -0.162246 2.73323 0.486739L8.02496 5.72855L13.2668 0.486739C13.8658 -0.162246 14.9142 -0.162246 15.5133 0.486739C16.1622 1.0858 16.1622 2.13417 15.5133 2.73323Z" fill="white"/>
+            <path d="M0.280428 15.7196C0.155794 15.5949 0.0727037 15.4469 0.0311587 15.2756C-0.0103862 15.1094 -0.0103862 14.9406 0.0311587 14.7692C0.0727037 14.6031 0.153197 14.4628 0.272639 14.3486L6.62123 8L0.272639 1.65141C0.153197 1.53716 0.0727037 1.39695 0.0311587 1.23077C-0.0103862 1.06459 -0.0103862 0.895813 0.0311587 0.72444C0.0727037 0.553067 0.155794 0.405063 0.280428 0.280428C0.405063 0.155794 0.550471 0.0727037 0.71665 0.0311587C0.888023 -0.0103862 1.0568 -0.0103862 1.22298 0.0311587C1.38916 0.0727037 1.53457 0.153197 1.6592 0.272639L8 6.62123L14.3408 0.280428C14.4654 0.155794 14.6108 0.0727037 14.777 0.0311587C14.9432 -0.0103862 15.1094 -0.0103862 15.2756 0.0311587C15.4417 0.0727037 15.5871 0.155794 15.7118 0.280428C15.8416 0.405063 15.9273 0.553067 15.9688 0.72444C16.0104 0.89062 16.0104 1.0568 15.9688 1.22298C15.9273 1.38916 15.8442 1.53457 15.7196 1.6592L9.37877 8L15.7196 14.3408C15.8442 14.4654 15.9247 14.6082 15.9611 14.7692C16.0026 14.9354 16.0026 15.1016 15.9611 15.2678C15.9247 15.4391 15.8416 15.5897 15.7118 15.7196C15.5871 15.8442 15.4417 15.9273 15.2756 15.9688C15.1094 16.0104 14.9432 16.0104 14.777 15.9688C14.6108 15.9273 14.4654 15.8442 14.3408 15.7196L8 9.37877L1.6592 15.7274C1.53457 15.8468 1.38916 15.9273 1.22298 15.9688C1.0568 16.0104 0.89062 16.0104 0.72444 15.9688C0.55826 15.9273 0.410256 15.8442 0.280428 15.7196Z" fill="white"/>
         </svg>
     `;
 
