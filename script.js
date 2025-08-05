@@ -26,8 +26,10 @@ let allTasks = [];
 const loadTasks = async () => {
     const taskContainer = document.querySelector(".content__tasks");
     if (taskContainer) taskContainer.classList.add("loading");
+    
     const snapshot = await getDocs(tasksRef);
-    const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     allTasks = tasks;
     renderTasks(tasks);
 };
