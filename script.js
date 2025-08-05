@@ -221,9 +221,9 @@ const createTaskForm = (values = {}, isEdit = false) => {
             <div class="task__form-group-deadline">
                 <input type="text" id="add-task__deadline" class="task__form-input task__form-datepicker" placeholder="Отдать до" data-deadline="${deadLine}" value="${deadLineStringRu}" autocomplete="off" readonly />
             </div>
+            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Кто поставил задачу" value="${createdBy}" autocomplete="off" />
             <input type="url" id="add-task__tzLink" class="task__form-input" placeholder="Ссылка на ТЗ" value="${tzLink}" autocomplete="off" />
             <input type="url" id="add-task__figmaLink" class="task__form-input" placeholder="Ссылка на макет" value="${figmaLink}" autocomplete="off" />
-            <input type="text" id="add-task__createdBy" class="task__form-input" placeholder="Кто поставил задачу" value="${createdBy}" autocomplete="off" />
         </div>
         <div class="task__form-actions">
             <button type="submit" class="task__form-submit btn">${isEdit ? "Сохранить" : "Добавить"}</button>

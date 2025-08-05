@@ -482,11 +482,11 @@ body[data-theme="light"] .modal__container {
     padding: 0;
     outline: none;
     border: none;
-    border-top: 1px solid var(--color-main-10);
+    border-bottom: 1px solid var(--color-main-10);
     font-family: var(--font-main);
 }
 
-.task__form-group > .task__form-input:first-child {
+.task__form-group > .task__form-input:last-child {
     border: none;
 }
 
