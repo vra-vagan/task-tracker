@@ -522,7 +522,7 @@ textarea.task__form-input {
 
 .task__form-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
     margin-top: 0.5rem;
 }
 
