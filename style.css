@@ -486,7 +486,7 @@ body[data-theme="light"] .modal__container {
     font-family: var(--font-main);
 }
 
-.task__form-group > .task__form-input:last-child {
+.task__form-group>.task__form-input:last-child {
     border: none;
 }
 

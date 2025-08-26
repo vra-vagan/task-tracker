@@ -26,7 +26,7 @@ let allTasks = [];
 const loadTasks = async () => {
     const taskContainer = document.querySelector(".content__tasks");
     if (taskContainer) taskContainer.classList.add("loading");
-    
+
     const snapshot = await getDocs(tasksRef);
     const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -36,16 +36,15 @@ const loadTasks = async () => {
 
 const sendToTelegram = (task) => {
     const text = `
-<b>Новая задача</b>
-
 <b>${task.title}</b>
+
 ${task.description}
 
 <b>От:</b> ${task.createdBy}
 ${task.tzLink ? `<b>ТЗ:</b> <a href="${task.tzLink}">Смотреть ТЗ</a>` : ""}
 ${task.figmaLink ? `<b>Figma:</b> <a href="${task.figmaLink}">Сотреть макет</a>` : ""}
 ${task.deadLine ? `<b>Дедлайн:</b> ${task.deadLine}` : ""}
-${new Date(task.createdAt).toLocaleString("ru-RU")}
+<b>Создано: </b>${new Date(task.createdAt).toLocaleString("ru-RU")}
     `;
 
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -103,7 +102,7 @@ const renderTasks = (tasks) => {
                         <div class="task__top-title-container">
                             <h2 class="task__top-title">${task.title}</h2>
                         </div>
-                        <p class="task__top-description">${task.description}</p>
+                        <p class="task__top-description">${escapeHTML(task.description)}</p>
                     </div>
                     <div class="task__bottom">
                         <p class="task__bottom-item">
@@ -405,6 +404,8 @@ const attachModalActions = (modal, content, task) => {
     const oldTitle = modalTitle.innerText;
     const status = task.status === "created" ? "in_progress" : "done";
     const acceptBtn = content.querySelector(".task__accept");
+    const copyBtn = content.querySelector(".btn__copy");
+    if (copyBtn) copyBtn.addEventListener("click", () => copyToClipboard(copyBtn.dataset.url || ""));
     if (acceptBtn) acceptBtn.addEventListener("click", (e) => updateTaskStatus(e, task.id, status));
 
     const editBtn = content.querySelector(".task__edit");
@@ -626,15 +627,33 @@ const handleDatepicker = (container, input) => {
     }
 };
 
-const convertLinksToAnchors = (text) => {
-    return text.replace(/(?<!href="|">)((https?:\/\/|www\.)[^\s<>()\]]+[^\s<>,.?!:;()\]])/gi, (match) => {
-        let url = match;
+const copyToClipboard = (url) => {
+    if (!url) return;
+    navigator.clipboard
+        .writeText(url)
+        .then(() => {
+            console.log("Ссылка скопирована:", url);
+        })
+        .catch((err) => {
+            console.error("Ошибка копирования:", err);
+        });
+};
 
+const escapeHTML = (str) => str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+
+const convertLinksToAnchors = (text) => {
+    const safeText = escapeHTML(text);
+
+    if (/[<>]/.test(text)) {
+        return safeText;
+    }
+
+    return safeText.replace(/((https?:\/\/|www\.)[^\s<>()\]]+[^\s<>,.?!:;()\]])/gi, (match) => {
+        let url = match;
         if (!/^https?:\/\//i.test(url)) {
             url = "https://" + url;
         }
-
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a><button class="btn__copy" data-url="${url}" style="display: none;">📋</button>`;
     });
 };
 
