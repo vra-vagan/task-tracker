@@ -61,13 +61,13 @@ body[data-theme="light"] {
     --color-bg-flat: rgba(var(--color-bg), 1);
     --color-bg: 255, 255, 255;
     --color-main: 0, 0, 0;
-    --box-shadow: inset 1.5px 1.5px 0.5px -1px var(--color-bg-30), inset -1.5px -1.5px 0.5px -1px var(--color-bg-10);
+    --box-shadow: inset 1.5px 1.5px 1.5px -1px var(--color-bg-30), inset -1.5px -1.5px 0.5px -1px var(--color-bg-10);
 }
 
 body[data-theme="dark"] {
     --color-bg: 23, 23, 23;
     --color-main: 255, 255, 255;
-    --box-shadow: inset 1.5px 1.5px 0.5px -1px var(--color-main-30), inset -1.5px -1.5px 0.5px -1px var(--color-main-10);
+    --box-shadow: inset 1.5px 1.5px 1.5px -1px var(--color-main-30), inset -1.5px -1.5px 0.5px -1px var(--color-main-10);
 }
 
 ul {
@@ -96,6 +96,30 @@ h1 {
 h2 {
     font-size: 1.125rem;
     font-weight: 600;
+    line-height: 1.2;
+}
+
+.task__form-input::-webkit-input-placeholder {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.task__form-input::-moz-placeholder {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.task__form-input:-ms-input-placeholder {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.task__form-input::-ms-input-placeholder {
+    font-size: 0.875rem;
+    font-weight: 400;
     line-height: 1.2;
 }
 
@@ -207,8 +231,27 @@ h4,
     position: absolute;
     width: 100%;
     z-index: 1;
+    isolation: isolate;
+    pointer-events: none;
+}
+
+.content__header:before {
+    content: "";
+    -webkit-mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
+    mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
     -webkit-backdrop-filter: blur(1.25rem);
-    backdrop-filter: blur(1.25rem);
+    backdrop-filter: blur(0.25rem);
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 130%;
+    z-index: -1;
+    background: var(--color-bg-60);
+}
+
+.content__header-add.btn {
+    pointer-events: all;
 }
 
 .content__header-add.btn {
@@ -688,6 +731,7 @@ body[data-theme="light"] .btn__show-more circle {
     border: 2px solid transparent;
     border-top-color: white;
     border-radius: 50%;
+    -webkit-animation: spin 0.6s linear infinite;
     animation: spin 0.6s linear infinite;
 }
 
@@ -826,6 +870,12 @@ body[data-theme="light"] .btn__show-more circle {
     border-color: #ff3930;
 }
 
+@-webkit-keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
 @keyframes spin {
     to {
         transform: translate(-50%, -50%) rotate(360deg);
@@ -867,6 +917,7 @@ body[data-theme="light"] .btn__show-more circle {
         padding: 0.25rem;
         background: var(--color-main-8);
         border: 0.0625rem solid var(--color-main-8);
+        -webkit-backdrop-filter: blur(1.25rem);
         backdrop-filter: blur(1.25rem);
         border-radius: 10rem;
         width: unset;
@@ -907,7 +958,6 @@ body[data-theme="light"] .btn__show-more circle {
 
     .content__header {
         position: unset;
-        backdrop-filter: unset;
         padding: 0.5rem;
     }
 

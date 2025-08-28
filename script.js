@@ -42,7 +42,7 @@ ${task.description}
 
 <b>От:</b> ${task.createdBy}
 ${task.tzLink ? `<b>ТЗ:</b> <a href="${task.tzLink}">Смотреть ТЗ</a>` : ""}
-${task.figmaLink ? `<b>Figma:</b> <a href="${task.figmaLink}">Сотреть макет</a>` : ""}
+${task.figmaLink ? `<b>Figma:</b> <a href="${task.figmaLink}">Смотреть макет</a>` : ""}
 ${task.deadLine ? `<b>Дедлайн:</b> ${task.deadLine}` : ""}
 <b>Создано: </b>${new Date(task.createdAt).toLocaleString("ru-RU")}
     `;
