@@ -870,6 +870,10 @@ body[data-theme="light"] .btn__show-more circle {
     border-color: #ff3930;
 }
 
+.task__full-description {
+    width: 100%;
+}
+
 @-webkit-keyframes spin {
     to {
         transform: translate(-50%, -50%) rotate(360deg);
@@ -954,11 +958,16 @@ body[data-theme="light"] .btn__show-more circle {
     .content__tasks {
         overflow: unset;
         padding: 0.5rem;
+        margin-top: 3.75rem;
     }
 
     .content__header {
-        position: unset;
-        padding: 0.5rem;
+        position: fixed;
+        padding: 1rem;
+        left: 0;
+        top: 0;
+        right: 0;
+        z-index: 10;
     }
 
     .task__bottom {
