@@ -604,6 +604,9 @@ textarea.task__form-input {
 
 .task__full-description {
     white-space: pre-wrap;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
     padding: 1rem;
     border-radius: 1rem;
     background: var(--color-main-8);
