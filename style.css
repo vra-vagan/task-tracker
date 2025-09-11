@@ -26,6 +26,7 @@
 html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
 }
 
 body {
@@ -877,25 +878,22 @@ body[data-theme="light"] .btn__show-more circle {
     }
 
     .page__container {
-        padding: 0.5rem;
+        padding: 0 0.5rem 0.5rem;
         margin: 0;
     }
 
     .page__container-layout {
-        height: unset;
+        height: 100vh;
         border-radius: unset;
         border: unset;
     }
 
     .content {
-        padding-bottom: 4.5rem;
         background: unset;
     }
 
     .content__tasks {
-        overflow: unset;
-        padding: 0.5rem;
-        margin-top: 3.75rem;
+        padding: 4.75rem 0.5rem 0.5rem;
     }
 
     .content__header {
