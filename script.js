@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, limit, query, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDur-_Gm0ZQOhdNwlzX5Aea-FSMXnXfyOM",
@@ -20,18 +20,38 @@ const db = getFirestore(app);
 const tasksRef = collection(db, "tasks");
 
 let deadlineTimerInterval;
-let currentStatus = "all";
 let allTasks = [];
+let isLoading = false;
+let hasMore = true;
+let lastVisible = null;
 
-const loadTasks = async () => {
+const loadTasks = async (isNextPage = false) => {
+    if (isLoading || (!hasMore && isNextPage)) return;
+    isLoading = true;
+
     const taskContainer = document.querySelector(".content__tasks");
     if (taskContainer) taskContainer.classList.add("loading");
 
-    const snapshot = await getDocs(tasksRef);
-    const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    let q;
+    if (!isNextPage) {
+        q = query(tasksRef, orderBy("createdAt", "desc"), limit(10));
+    } else {
+        q = query(tasksRef, orderBy("createdAt", "desc"), startAfter(lastVisible), limit(10));
+    }
 
-    allTasks = tasks;
-    renderTasks(tasks);
+    const snapshot = await getDocs(q);
+    const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    if (snapshot.docs.length > 0) {
+        lastVisible = snapshot.docs[snapshot.docs.length - 1];
+        allTasks = [...allTasks, ...tasks];
+        renderTasks(allTasks);
+    } else {
+        hasMore = false;
+    }
+
+    if (taskContainer) taskContainer.classList.remove("loading");
+    isLoading = false;
 };
 
 const sendToTelegram = (task) => {
@@ -70,24 +90,11 @@ const renderTasks = (tasks) => {
         in_progress: "В процессе",
         created: "Не начато",
     };
-    const status = currentStatus;
-    titleEl.textContent = statusMap[status] || "Все задачи";
-    document.querySelectorAll(".sidebar__link").forEach((link) => {
-        if (link.dataset.status === status) {
-            link.dataset.active = "true";
-        } else {
-            link.dataset.active = "false";
-        }
-    });
 
-    const statusFilter = status;
-    const filteredTasks = tasks.filter((task) => {
-        if (!statusFilter || statusFilter === "all") return true;
-        return task.status === statusFilter;
-    });
+    titleEl.textContent = "Все задачи";
 
-    if (filteredTasks.length > 0) {
-        filteredTasks.forEach((task) => {
+    if (tasks.length > 0) {
+        tasks.forEach((task) => {
             const taskDate = task.createdAt.split("T")[0];
             const isToday = taskDate === today;
             const dateLabel = isToday ? "Сегодня" : new Date(taskDate).toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
@@ -404,8 +411,12 @@ const attachModalActions = (modal, content, task) => {
     const oldTitle = modalTitle.innerText;
     const status = task.status === "created" ? "in_progress" : "done";
     const acceptBtn = content.querySelector(".task__accept");
-    const copyBtn = content.querySelector(".btn__copy");
-    if (copyBtn) copyBtn.addEventListener("click", () => copyToClipboard(copyBtn.dataset.url || ""));
+    const copyBtns = content.querySelectorAll(".btn__copy");
+    if (copyBtns.length) {
+        copyBtns.forEach((copyBtn) => {
+            copyBtn.addEventListener("click", () => copyToClipboard(copyBtn.dataset.url || ""));
+        });
+    }
     if (acceptBtn) acceptBtn.addEventListener("click", (e) => updateTaskStatus(e, task.id, status));
 
     const editBtn = content.querySelector(".task__edit");
@@ -629,14 +640,30 @@ const handleDatepicker = (container, input) => {
 
 const copyToClipboard = (url) => {
     if (!url) return;
-    navigator.clipboard
-        .writeText(url)
-        .then(() => {
-            console.log("Ссылка скопирована:", url);
-        })
-        .catch((err) => {
-            console.error("Ошибка копирования:", err);
-        });
+    navigator.clipboard.writeText(url);
+
+    let clipboardContainer = document.querySelector(".clipboard");
+    if (!clipboardContainer) {
+        clipboardContainer = document.createElement("div");
+        clipboardContainer.className = "clipboard";
+        document.body.appendChild(clipboardContainer);
+    }
+
+    const clipboardItem = document.createElement("div");
+    clipboardItem.className = "clipboard__item";
+    clipboardItem.textContent = "Ссылка скопирована";
+    clipboardContainer.appendChild(clipboardItem);
+
+    setTimeout(() => {
+        clipboardItem.style.opacity = "0";
+        setTimeout(() => {
+            clipboardItem.remove();
+            const container = document.querySelector(".clipboard");
+            if (container && container.children.length === 0) {
+                container.remove();
+            }
+        }, 300);
+    }, 4000);
 };
 
 const escapeHTML = (str) => str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -653,7 +680,14 @@ const convertLinksToAnchors = (text) => {
         if (!/^https?:\/\//i.test(url)) {
             url = "https://" + url;
         }
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a><button class="btn__copy" data-url="${url}" style="display: none;">📋</button>`;
+        return `<span class="task__full-description-link">
+                    <a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>
+                    <button class="btn__copy" data-url="${url}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.5 2H13.375C13.75 2 14.1562 2.1875 14.4375 2.46875L16.5312 4.5625C16.8125 4.84375 17 5.25 17 5.625V12.5C17 13.3438 16.3125 14 15.5 14H9.5C8.65625 14 8 13.3438 8 12.5V3.5C8 2.6875 8.65625 2 9.5 2ZM4.5 6H7V8H5V16H11V15H13V16.5C13 17.3438 12.3125 18 11.5 18H4.5C3.65625 18 3 17.3438 3 16.5V7.5C3 6.6875 3.65625 6 4.5 6Z" fill="#0078FF"></path>
+                        </svg>
+                    </button>
+                </span>`;
     });
 };
 
@@ -668,16 +702,16 @@ const handleFilters = () => {
 };
 
 const handleTheme = () => {
-    const input = document.getElementById("theme-toggle__input");
+    const themeButton = document.querySelector(".content__header-theme");
     const applyTheme = (theme) => document.body.setAttribute("data-theme", theme);
 
     const saved = localStorage.getItem("theme");
     const theme = saved === "light" ? "light" : "dark";
     applyTheme(theme);
-    if (input) input.checked = theme === "dark";
 
-    input?.addEventListener("change", () => {
-        const newTheme = input.checked ? "dark" : "light";
+    themeButton?.addEventListener("click", () => {
+        const current = document.body.getAttribute("data-theme");
+        const newTheme = current === "dark" ? "light" : "dark";
         applyTheme(newTheme);
         localStorage.setItem("theme", newTheme);
     });
@@ -722,9 +756,28 @@ const getTimeLeftToLocalMidnight = (deadlineStr) => {
     return `${hours} ч ${minutes} м`;
 };
 
+const initInfiniteScroll = () => {
+    const container = document.querySelector(".content__tasks");
+    if (!container) return;
+
+    container.addEventListener("scroll", () => {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+            loadTasks(true);
+        }
+    });
+};
+
 window.addEventListener("DOMContentLoaded", () => {
     handleFilters();
     handleAdd();
     loadTasks();
     handleTheme();
+    initInfiniteScroll();
+    document.querySelector(".content__header-update")?.addEventListener("click", () => {
+        allTasks = [];
+        lastVisible = null;
+        hasMore = true;
+        loadTasks(false);
+    });
 });
