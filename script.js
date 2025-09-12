@@ -44,7 +44,13 @@ const loadTasks = async (isNextPage = false) => {
 
     if (snapshot.docs.length > 0) {
         lastVisible = snapshot.docs[snapshot.docs.length - 1];
-        allTasks = [...allTasks, ...tasks];
+
+        if (!isNextPage) {
+            allTasks = tasks;
+        } else {
+            allTasks = [...allTasks, ...tasks];
+        }
+
         renderTasks(allTasks);
     } else {
         hasMore = false;
