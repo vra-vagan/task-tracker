@@ -199,9 +199,9 @@ h4,
 
 .content__header:before {
     content: "";
-    -webkit-mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
-    mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
-    -webkit-backdrop-filter: blur(1.25rem);
+    -webkit-mask: linear-gradient(180deg, #ffffff, #ffffff80 50%, transparent);
+    mask: linear-gradient(180deg, #ffffff, #ffffff80 50%, transparent);
+    -webkit-backdrop-filter: blur(0.25rem);
     backdrop-filter: blur(0.25rem);
     position: absolute;
     left: 0;
@@ -221,7 +221,9 @@ h4,
     height: 130%;
     z-index: -1;
     -webkit-mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
-    mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
+    mask: linear-gradient(180deg, #ffffff, #ffffff80 50%, transparent);
+    -webkit-backdrop-filter: blur(0.25rem);
+    backdrop-filter: blur(0.25rem);
 }
 
 .content__header-btns {
