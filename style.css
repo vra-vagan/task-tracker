@@ -220,7 +220,7 @@ h4,
     right: 0;
     height: 130%;
     z-index: -1;
-    -webkit-mask: linear-gradient(180deg, #ffffff, #ffffff80 70%, transparent);
+    -webkit-mask: linear-gradient(180deg, #ffffff, #ffffff80 50%, transparent);
     mask: linear-gradient(180deg, #ffffff, #ffffff80 50%, transparent);
     -webkit-backdrop-filter: blur(0.25rem);
     backdrop-filter: blur(0.25rem);
