@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, limit, query, orderBy, startAfter, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+let appInitialized = false;
 let currentUser = null;
 
 const checkUserAuth = () => {
@@ -417,6 +418,9 @@ const handleBtns = () => {
 };
 
 const initApp = () => {
+    if (appInitialized) return;
+    appInitialized = true;
+
     handleBtns();
     handleFilters();
     handleAdd();
@@ -457,6 +461,12 @@ const handleTaskClick = () => {
 
 const handleAdd = () => {
     document.querySelector(".content__header-add")?.addEventListener("click", () => {
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+            checkUserAuth();
+            return;
+        }
+        currentUser = JSON.parse(userData);
         const addForm = createTaskForm();
         insertModal(addForm, "Добавить задачу");
 
