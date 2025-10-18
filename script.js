@@ -1,5 +1,92 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, limit, query, orderBy, startAfter } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, limit, query, orderBy, startAfter, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+let currentUser = null;
+
+const checkUserAuth = () => {
+    const userData = localStorage.getItem("user");
+    const pageContainer = document.querySelector(".page__container");
+
+    if (!userData) {
+        pageContainer?.classList.add("hidden");
+        renderLoginForm();
+    } else {
+        pageContainer?.classList.remove("hidden");
+        currentUser = JSON.parse(userData);
+        initApp();
+    }
+};
+
+const renderLoginForm = () => {
+    const container = document.createElement("div");
+    container.className = "login";
+    container.innerHTML = `
+        <form class="login__form">
+            <h1 class="login__title">Вход</h1>
+            <div class="login__form-group">
+                <input type="text" class="login__input" id="login" placeholder="Логин" autocomplete="off" />
+                <input type="password" class="login__input" id="password" placeholder="Пароль" autocomplete="off" />
+            </div>
+            <button type="submit" class="btn login__submit">Войти</button>
+            <p class="login__error"></p>
+        </form>
+    `;
+
+    document.body.appendChild(container);
+
+    const form = container.querySelector(".login__form");
+    form.addEventListener("submit", (e) => handleLogin(e));
+};
+
+const handleLogin = async (e) => {
+    e.preventDefault();
+    const submitBtn = e.submitter;
+    submitBtn.classList.add("loading");
+    submitBtn.disabled = true;
+    const loginInput = e.target.querySelector("#login");
+    const passwordInput = e.target.querySelector("#password");
+    const errorEl = e.target.querySelector(".login__error");
+
+    const login = loginInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!login || !password) {
+        errorEl.textContent = "Введите логин и пароль";
+        submitBtn.classList.remove("loading");
+        submitBtn.disabled = false;
+        return;
+    }
+
+    const usersRef = collection(db, "users");
+    const snapshot = await getDocs(usersRef);
+    const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const user = users.find((u) => u.login === login);
+
+    if (!user) {
+        errorEl.textContent = "Пользователь не найден";
+        submitBtn.classList.remove("loading");
+        submitBtn.disabled = false;
+        return;
+    }
+
+    if (user.password !== password) {
+        errorEl.textContent = "Неверный пароль";
+        submitBtn.classList.remove("loading");
+        submitBtn.disabled = false;
+        return;
+    }
+
+    localStorage.setItem("user", JSON.stringify({ login: user.login, role: user.role }));
+    currentUser = user;
+    initApp();
+    document.querySelector(".login")?.remove();
+    document.querySelector(".page__container")?.classList.remove("hidden");
+};
+
+const logoutUser = () => {
+    localStorage.removeItem("user");
+    location.reload();
+};
 
 const firebaseConfig = {
     apiKey: "AIzaSyDur-_Gm0ZQOhdNwlzX5Aea-FSMXnXfyOM",
@@ -33,10 +120,13 @@ const loadTasks = async (isNextPage = false) => {
     if (taskContainer) taskContainer.classList.add("loading");
 
     let q;
-    if (!isNextPage) {
-        q = query(tasksRef, orderBy("createdAt", "desc"), limit(10));
+    if (currentUser?.role === "admin") {
+        q = !isNextPage ? query(tasksRef, orderBy("createdAt", "desc"), limit(10)) : query(tasksRef, orderBy("createdAt", "desc"), startAfter(lastVisible), limit(10));
     } else {
-        q = query(tasksRef, orderBy("createdAt", "desc"), startAfter(lastVisible), limit(10));
+        const companyFilter = currentUser?.login || "";
+        q = !isNextPage
+            ? query(tasksRef, where("company", "==", companyFilter), orderBy("createdAt", "desc"), limit(10))
+            : query(tasksRef, where("company", "==", companyFilter), orderBy("createdAt", "desc"), startAfter(lastVisible), limit(10));
     }
 
     const snapshot = await getDocs(q);
@@ -293,6 +383,7 @@ const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
         createdAt: new Date().toISOString(),
         status: currentStatus,
         deadLine: deadLineConverted,
+        company: currentUser?.login || "",
     };
 
     if (id) {
@@ -306,6 +397,32 @@ const handleTaskSubmit = async (e, id = null, currentStatus = "created") => {
 
     loadTasks();
     closeModal(e);
+};
+
+const handleBtns = () => {
+    const updateBtn = document.querySelector(".content__header-update");
+    if (updateBtn) {
+        updateBtn.addEventListener("click", () => {
+            allTasks = [];
+            lastVisible = null;
+            hasMore = true;
+            loadTasks(false);
+        });
+    }
+
+    const logoutBtn = document.querySelector(".content__header-logout");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logoutUser);
+    }
+};
+
+const initApp = () => {
+    handleBtns();
+    handleFilters();
+    handleAdd();
+    loadTasks();
+    handleTheme();
+    initInfiniteScroll();
 };
 
 const updateTaskStatus = async (e, id, status) => {
@@ -774,16 +891,4 @@ const initInfiniteScroll = () => {
     });
 };
 
-window.addEventListener("DOMContentLoaded", () => {
-    handleFilters();
-    handleAdd();
-    loadTasks();
-    handleTheme();
-    initInfiniteScroll();
-    document.querySelector(".content__header-update")?.addEventListener("click", () => {
-        allTasks = [];
-        lastVisible = null;
-        hasMore = true;
-        loadTasks(false);
-    });
-});
+document.addEventListener("DOMContentLoaded", checkUserAuth);

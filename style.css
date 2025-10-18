@@ -8,7 +8,6 @@
     scrollbar-color: var(--color-status-blue) var(--color-bg-100);
 }
 
-
 *::-webkit-scrollbar {
     width: 8px;
 }
@@ -132,6 +131,7 @@ h2 {
     line-height: 1.2;
 }
 
+.login__error,
 .datepicker__day,
 .task__form-input,
 .task__form-input::placeholder,
@@ -164,6 +164,10 @@ h4,
     margin: auto;
     padding: 1.25rem;
     display: flex;
+}
+
+.page__container.hidden {
+    display: none;
 }
 
 .page__container-layout {
@@ -537,6 +541,21 @@ body[data-theme="light"] .modal__container {
     gap: 0.75rem;
 }
 
+.login {
+    margin: auto;
+    max-width: 360px;
+    width: 100%;
+    padding: 0 1.25rem;
+}
+
+.login__form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+}
+
+.login__input,
 .task__form-input {
     width: 100%;
     background: none;
@@ -549,6 +568,55 @@ body[data-theme="light"] .modal__container {
     font-family: var(--font-main);
 }
 
+body[data-theme="dark"] .login__input:autofill {
+    box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    -moz-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .login__input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
+    box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .login__input:-moz-autofill {
+    -moz-box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
+    box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
+    -moz-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="light"] .login__input:autofill {
+    box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
+    -webkit-text-fill-color: #000000 !important;
+    -moz-text-fill-color: #000000 !important;
+    caret-color: #000000 !important;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="light"] .login__input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
+    box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
+    -webkit-text-fill-color: #000000 !important;
+    caret-color: #000000 !important;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="light"] .login__input:-moz-autofill {
+    -moz-box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
+    box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
+    -moz-text-fill-color: #000000 !important;
+    caret-color: #000000 !important;
+    transition: all 0.3s ease;
+}
+
+.login__input:last-child,
 .task__form-group>.task__form-input:last-child {
     border: none;
 }
@@ -589,6 +657,7 @@ textarea.task__form-input {
     margin-top: 0.5rem;
 }
 
+.login__form-group,
 .task__form-group {
     display: flex;
     flex-direction: column;
