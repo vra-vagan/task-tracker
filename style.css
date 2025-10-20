@@ -262,7 +262,7 @@ h4,
     pointer-events: all;
     backdrop-filter: blur(1rem) hue-rotate(-16deg);
     -webkit-backdrop-filter: blur(1rem) hue-rotate(-16deg);
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2), background-color 0.4s ease;
 }
 
 .content__header-btns-group button {
@@ -271,6 +271,10 @@ h4,
     display: flex;
     cursor: pointer;
     outline: none;
+}
+
+body[data-theme="light"] .content__header-btns-group path {
+    fill: var(--color-main-100);
 }
 
 .modal__close:hover,
@@ -402,7 +406,7 @@ h4,
     color: #ffffff;
     background-color: var(--color-status-blue);
     opacity: 1;
-    transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2), background-color 0.4s ease;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -924,7 +928,7 @@ body[data-theme="light"] .btn__show-more circle {
     cursor: pointer;
     background: none;
     border: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2), background-color 0.4s ease;
     opacity: 0;
     display: inline-flex;
     position: absolute;
@@ -934,6 +938,11 @@ body[data-theme="light"] .btn__show-more circle {
     background: var(--color-main-10);
     backdrop-filter: blur(0.125rem);
     box-shadow: var(--box-shadow);
+}
+
+.btn__copy:hover {
+    transform: translate(0.25rem, -0.375rem) scale(1.075);
+    background-color: var(--color-main-15);
 }
 
 .task__full-description-link:hover .btn__copy {
