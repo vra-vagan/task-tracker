@@ -55,27 +55,9 @@ body {
     --font-main: 'Inter', 'Helvetica Neue', sans-serif;
     --box-shadow-hover: inset -1.5px 1.5px 1.5px -1px var(--color-main-30), inset 1.5px -1.5px 1.5px -1px var(--color-main-10);
     --box-shadow-active: inset -1px 1px 1px -1px var(--color-main-30), inset 1px -1px 1px -1px var(--color-main-10);
-}
-
-body[data-theme="light"] {
-    --color-bg-flat: rgba(var(--color-bg), 1);
-    --color-bg: 255, 255, 255;
-    --color-main: 0, 0, 0;
-    --box-shadow: inset 1.5px 1.5px 1.5px -1px var(--color-bg-30), inset -1.5px -1.5px 0.5px -1px var(--color-bg-10);
-}
-
-body[data-theme="dark"] {
     --color-bg: 23, 23, 23;
     --color-main: 255, 255, 255;
     --box-shadow: inset 1.5px 1.5px 1.5px -1px var(--color-main-30), inset -1.5px -1.5px 0.5px -1px var(--color-main-10);
-}
-
-body[data-theme="dark"] #theme-dark {
-    display: none;
-}
-
-body[data-theme="light"] #theme-light {
-    display: none;
 }
 
 ul {
@@ -215,6 +197,7 @@ h4,
     z-index: -2;
 }
 
+.modal__header:after,
 .content__header::after {
     content: '';
     background: var(--color-bg-60);
@@ -241,8 +224,7 @@ h4,
 }
 
 .content__header-add.btn,
-.content__header-update.btn,
-.content__header-theme.btn {
+.content__header-update.btn {
     width: 2.75rem;
     height: 2.75rem;
     padding: 0.5rem;
@@ -273,14 +255,10 @@ h4,
     outline: none;
 }
 
-body[data-theme="light"] .content__header-btns-group path {
-    fill: var(--color-main-100);
-}
-
 .modal__close:hover,
 .btn__show-more:hover,
 .content__header-btns-group:hover {
-    transform: scale(1.075);
+    /* transform: scale(1.075); */
     background-color: var(--color-main-15);
 }
 
@@ -301,7 +279,7 @@ body[data-theme="light"] .content__header-btns-group path {
     gap: 1rem;
     padding: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
     border-radius: 1.25rem;
     background-color: var(--color-main-5);
     position: relative;
@@ -309,6 +287,7 @@ body[data-theme="light"] .content__header-btns-group path {
 
 .task:hover {
     background-color: var(--color-main-10);
+    transform: scale(1.003125);
 }
 
 .task__top-description {
@@ -435,7 +414,7 @@ body[data-theme="light"] .content__header-btns-group path {
 }
 
 .btn:hover {
-    transform: scale(1.075);
+    /* transform: scale(1.075); */
 }
 
 .btn:active {
@@ -443,7 +422,7 @@ body[data-theme="light"] .content__header-btns-group path {
 }
 
 .task__full-additional-content .btn:hover {
-    transform: scale(1);
+    transform: scale(1) !important;
     opacity: 0.8;
 }
 
@@ -471,7 +450,6 @@ body[data-theme="light"] .content__header-btns-group path {
 .modal__container {
     max-width: 640px;
     width: 100%;
-    max-height: calc(100vh - 7.5rem);
     margin: auto;
     background: var(--color-bg-flat);
     border-radius: 2rem;
@@ -481,17 +459,12 @@ body[data-theme="light"] .content__header-btns-group path {
     flex-direction: column;
     transform: scale(0.8);
     will-change: transform, box-shadow;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scrollbar-width: none;
+    overflow: hidden;
 }
 
-.modal__container::-webkit-scrollbar {
+.modal__container::-webkit-scrollbar,
+.modal__content::-webkit-scrollbar {
     display: none;
-}
-
-body[data-theme="light"] .modal__container {
-    box-shadow: 0 0 4.5rem var(--color-main-10), var(--box-shadow);
 }
 
 .modal[data-active="true"] .modal__container {
@@ -508,6 +481,13 @@ body[data-theme="light"] .modal__container {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    isolation: isolate;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .modal__header h1 {
@@ -515,8 +495,12 @@ body[data-theme="light"] .modal__container {
 }
 
 .modal__content {
-    padding: 0 1rem 1rem;
+    padding: 5rem 1rem 1rem;
     border-radius: 0.375rem;
+    max-height: calc(100vh - 7.5rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
 
 .modal__close {
@@ -531,6 +515,9 @@ body[data-theme="light"] .modal__container {
     background-color: var(--color-main-10);
     padding: 0.5rem;
     flex-shrink: 0;
+    backdrop-filter: blur(1rem) hue-rotate(-16deg);
+    -webkit-backdrop-filter: blur(1rem) hue-rotate(-16deg);
+    pointer-events: all;
 }
 
 .modal__close path {
@@ -570,9 +557,10 @@ body[data-theme="light"] .modal__container {
     border: none;
     border-bottom: 1px solid var(--color-main-10);
     font-family: var(--font-main);
+    font-size: 0.875rem;
 }
 
-body[data-theme="dark"] .login__input:autofill {
+.login__input:autofill {
     box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
     -webkit-text-fill-color: #ffffff !important;
     -moz-text-fill-color: #ffffff !important;
@@ -580,7 +568,7 @@ body[data-theme="dark"] .login__input:autofill {
     transition: all 0.3s ease;
 }
 
-body[data-theme="dark"] .login__input:-webkit-autofill {
+.login__input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
     box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
     -webkit-text-fill-color: #ffffff !important;
@@ -588,35 +576,11 @@ body[data-theme="dark"] .login__input:-webkit-autofill {
     transition: all 0.3s ease;
 }
 
-body[data-theme="dark"] .login__input:-moz-autofill {
+.login__input:-moz-autofill {
     -moz-box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
     box-shadow: 0 0 0 1000px rgb(35 35 35) inset !important;
     -moz-text-fill-color: #ffffff !important;
     caret-color: #ffffff !important;
-    transition: all 0.3s ease;
-}
-
-body[data-theme="light"] .login__input:autofill {
-    box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
-    -webkit-text-fill-color: #000000 !important;
-    -moz-text-fill-color: #000000 !important;
-    caret-color: #000000 !important;
-    transition: all 0.3s ease;
-}
-
-body[data-theme="light"] .login__input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
-    box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
-    -webkit-text-fill-color: #000000 !important;
-    caret-color: #000000 !important;
-    transition: all 0.3s ease;
-}
-
-body[data-theme="light"] .login__input:-moz-autofill {
-    -moz-box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
-    box-shadow: 0 0 0 1000px rgb(242 242 242) inset !important;
-    -moz-text-fill-color: #000000 !important;
-    caret-color: #000000 !important;
     transition: all 0.3s ease;
 }
 
@@ -739,9 +703,9 @@ textarea.task__form-input {
     gap: 0.625rem;
     border-radius: 2rem;
     opacity: 0;
-    transform: translateY(-20%);
+    transform: scale(0.9);
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
     padding: 0.75rem;
     backdrop-filter: blur(1.25rem);
     -webkit-backdrop-filter: blur(1.25rem);
@@ -759,32 +723,6 @@ textarea.task__form-input {
 .datepicker,
 .task__full-additional-content {
     background-color: var(--color-main-10);
-}
-
-body[data-theme="light"] .datepicker,
-body[data-theme="light"] .task__full-additional-content {
-    background-color: var(--color-bg-50);
-}
-
-body[data-theme="light"] .btn__show-more {
-    background-color: var(--color-main-10);
-}
-
-body[data-theme="light"] .task__full-additional-content,
-body[data-theme="light"] .datepicker {
-    box-shadow: 0 0 1.25rem var(--color-main-20);
-}
-
-body[data-theme="light"] .datepicker__day.selected {
-    color: var(--color-bg-100);
-}
-
-body[data-theme="light"] .task__full-additional-content .btn {
-    color: #000000;
-}
-
-body[data-theme="light"] .btn__show-more circle {
-    fill: var(--color-main-100);
 }
 
 .task__full-additional[data-active="true"] .task__full-additional-content {
@@ -841,13 +779,13 @@ body[data-theme="light"] .btn__show-more circle {
     box-shadow: 0 0 1.25rem var(--color-bg-20);
     border: 0.0625rem solid var(--color-main-10);
     border-radius: 1.25rem;
-    transition: opacity 0.3s, transform 0.3s;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
     position: absolute;
     z-index: 10;
     opacity: 0;
     top: 50%;
     left: 0;
-    transform: translateY(-70%);
+    transform: translateY(-50%) scale(0.9);
     padding: 0.5rem;
     color: var(--color-main-100);
     backdrop-filter: blur(1.25rem);
@@ -856,7 +794,7 @@ body[data-theme="light"] .btn__show-more circle {
 
 .datepicker[data-active="true"] {
     opacity: 1;
-    transform: translateY(-50%);
+    transform: translateY(-50%) scale(1);
 }
 
 .datepicker__day,
@@ -983,6 +921,39 @@ body[data-theme="light"] .btn__show-more circle {
     white-space: nowrap;
 }
 
+.modal__bg-wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.modal__bg {
+    position: absolute;
+    z-index: -1;
+    width: 300%;
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(rgba(255, 255, 255, 0.1), transparent 70%);
+    border-radius: 50%;
+    will-change: transform;
+    left: 0px;
+    top: 0px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.btn svg {
+    pointer-events: none;
+}
+
+.modal__header:after {
+    backdrop-filter: unset;
+    -webkit-backdrop-filter: unset;
+}
+
 @-webkit-keyframes scale {
     to {
         transform: scale(1);
@@ -1094,5 +1065,42 @@ body[data-theme="light"] .btn__show-more circle {
         transform: translate(-1.75rem, -3px);
         backdrop-filter: unset;
         -webkit-backdrop-filter: unset;
+    }
+
+    .btn:focus,
+    .btn:hover {
+        transform: scale(1.075);
+    }
+
+    .modal__close:focus,
+    .modal__close:hover,
+    .btn__show-more:focus,
+    .btn__show-more:hover,
+    .content__header-btns-group:focus,
+    .content__header-btns-group:hover {
+        transform: scale(1.075);
+    }
+
+    .modal__content {
+        max-height: unset;
+        overflow-x: unset;
+        overflow-y: unset;
+        scrollbar-width: unset;
+        padding: 0 1rem 1rem;
+    }
+
+    .modal__header {
+        position: unset;
+    }
+
+    .modal__header::after {
+        display: none;
+    }
+
+    .modal__container {
+        max-height: unset;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: none;
     }
 }

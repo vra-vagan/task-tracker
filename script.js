@@ -425,7 +425,6 @@ const initApp = () => {
     handleFilters();
     handleAdd();
     loadTasks();
-    handleTheme();
     initInfiniteScroll();
 };
 
@@ -487,6 +486,7 @@ const handleAdd = () => {
 const insertModal = (content, title = "Добавить задачу") => {
     const modal = document.createElement("div");
     modal.className = "modal";
+
     const modalContainer = document.createElement("div");
     modalContainer.className = "modal__container";
 
@@ -512,12 +512,43 @@ const insertModal = (content, title = "Добавить задачу") => {
     modalHeader.append(modalTitle, modalClose);
     modalContainer.append(modalHeader, modalContent);
     modal.append(modalContainer);
+
+    const modalBgWrapper = document.createElement("div");
+    modalBgWrapper.className = "modal__bg-wrapper";
+
+    const modalBg = document.createElement("div");
+    modalBg.className = "modal__bg";
+    modalBgWrapper.append(modalBg);
+
+    modalContainer.append(modalBgWrapper);
+
+    modalContainer.addEventListener("mouseenter", () => {
+        modalBg.style.opacity = "1";
+    });
+
+    modalContainer.addEventListener("mouseleave", () => {
+        modalBg.style.opacity = "0";
+    });
+
+    modalContainer.addEventListener("mousemove", (e) => {
+        if (e.target.closest(".task__full-additional-content") || e.target.closest(".datepicker")) {
+            modalBg.style.opacity = "0";
+            return;
+        } else {
+            modalBg.style.opacity = "1";
+        }
+        const rect = modalContainer.getBoundingClientRect();
+        const bgRect = modalBg.getBoundingClientRect();
+        const x = e.clientX - rect.left - bgRect.width / 2;
+        const y = e.clientY - rect.top - bgRect.height / 2;
+        modalBg.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
     document.body.append(modal);
 
     modal.addEventListener("click", (e) => {
         const target = e.target;
         if (!target || target.closest(".modal__container")) return;
-
         closeModal(e);
     });
     modalClose.addEventListener("click", (e) => closeModal(e));
@@ -834,22 +865,6 @@ const handleFilters = () => {
     });
 };
 
-const handleTheme = () => {
-    const themeButton = document.querySelector(".content__header-theme");
-    const applyTheme = (theme) => document.body.setAttribute("data-theme", theme);
-
-    const saved = localStorage.getItem("theme");
-    const theme = saved === "light" ? "light" : "dark";
-    applyTheme(theme);
-
-    themeButton?.addEventListener("click", () => {
-        const current = document.body.getAttribute("data-theme");
-        const newTheme = current === "dark" ? "light" : "dark";
-        applyTheme(newTheme);
-        localStorage.setItem("theme", newTheme);
-    });
-};
-
 const startDeadlineTimers = () => {
     clearInterval(deadlineTimerInterval);
     updateAllDeadlines();
@@ -901,4 +916,49 @@ const initInfiniteScroll = () => {
     });
 };
 
-document.addEventListener("DOMContentLoaded", checkUserAuth);
+const handleHoverEffect = () => {
+    if (window.innerWidth <= 640) return;
+    const targets = [
+        ".content__header-btns-group",
+        ".modal__close",
+        ".btn__show-more",
+        ".task__form-submit",
+        ".task__form-cancel",
+        ".login__submit",
+        ".content__header-add",
+        ".task__full-additional-content",
+    ];
+    const movePower = 18;
+    const scalePowerX = 0.08;
+    const scalePowerY = 0.08;
+
+    const handleMove = (e) => {
+        if (!(e.target instanceof Element)) return;
+        const el = e.target.closest(targets.join(","));
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const ix = (e.clientX - r.left) / r.width - 0.5;
+        const iy = (e.clientY - r.top) / r.height - 0.5;
+
+        const tx = (ix * r.width) / movePower;
+        const ty = (iy * r.height) / movePower;
+        const sx = 1 + Math.abs(ix) * scalePowerX;
+        const sy = 1 + Math.abs(iy) * scalePowerY;
+        el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
+    };
+
+    const handleLeave = (e) => {
+        if (!(e.target instanceof Element)) return;
+        const el = e.target.closest(targets.join(","));
+        if (!el) return;
+        el.style.transform = "";
+    };
+
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseleave", handleLeave, true);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    checkUserAuth();
+    handleHoverEffect();
+});
