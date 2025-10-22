@@ -933,32 +933,38 @@ const handleHoverEffect = () => {
     const scalePowerX = 0.08;
     const scalePowerY = 0.08;
 
+    const handleOver = (e) => {
+        const el = e.target.closest(targets.join(","));
+        if (!el || el.contains(e.relatedTarget)) return;
+        el._transitionTimeout = setTimeout(() => {
+            el.style.transition = "none";
+        }, 400);
+    };
+
     const handleMove = (e) => {
-        if (!(e.target instanceof Element)) return;
         const el = e.target.closest(targets.join(","));
         if (!el) return;
         const r = el.getBoundingClientRect();
         const ix = (e.clientX - r.left) / r.width - 0.5;
         const iy = (e.clientY - r.top) / r.height - 0.5;
-
         const tx = (ix * r.width) / movePower;
         const ty = (iy * r.height) / movePower;
         const sx = 1 + Math.abs(ix) * scalePowerX;
         const sy = 1 + Math.abs(iy) * scalePowerY;
         el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
-        el.style.transition = "none";
     };
 
-    const handleLeave = (e) => {
-        if (!(e.target instanceof Element)) return;
+    const handleOut = (e) => {
         const el = e.target.closest(targets.join(","));
-        if (!el) return;
-        el.style.transform = "";
+        if (!el || el.contains(e.relatedTarget)) return;
+        clearTimeout(el._transitionTimeout);
         el.style.transition = "";
+        el.style.transform = "";
     };
 
+    document.addEventListener("mouseover", handleOver);
     document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseleave", handleLeave, true);
+    document.addEventListener("mouseout", handleOut);
 };
 
 document.addEventListener("DOMContentLoaded", () => {
