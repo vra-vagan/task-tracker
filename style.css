@@ -942,7 +942,7 @@ textarea.task__form-input {
     left: 0px;
     top: 0px;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
 }
 
 .btn svg {

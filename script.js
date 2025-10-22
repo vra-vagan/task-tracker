@@ -526,13 +526,9 @@ const insertModal = (content, title = "Добавить задачу") => {
         modalBg.style.opacity = "1";
     });
 
-    modalContainer.addEventListener("mouseleave", () => {
-        modalBg.style.opacity = "0";
-    });
-
     modalContainer.addEventListener("mousemove", (e) => {
         if (e.target.closest(".task__full-additional-content") || e.target.closest(".datepicker")) {
-            modalBg.style.opacity = "0";
+            modalBg.style.opacity = "";
             return;
         } else {
             modalBg.style.opacity = "1";
@@ -542,6 +538,10 @@ const insertModal = (content, title = "Добавить задачу") => {
         const x = e.clientX - rect.left - bgRect.width / 2;
         const y = e.clientY - rect.top - bgRect.height / 2;
         modalBg.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+    modalContainer.addEventListener("mouseleave", () => {
+        modalBg.style.opacity = "";
     });
 
     document.body.append(modal);
