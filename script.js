@@ -927,6 +927,7 @@ const handleHoverEffect = () => {
         ".login__submit",
         ".content__header-add",
         ".task__full-additional-content",
+        ".task__accept",
     ];
     const movePower = 18;
     const scalePowerX = 0.08;
@@ -945,6 +946,7 @@ const handleHoverEffect = () => {
         const sx = 1 + Math.abs(ix) * scalePowerX;
         const sy = 1 + Math.abs(iy) * scalePowerY;
         el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
+        el.style.transition = "none";
     };
 
     const handleLeave = (e) => {
@@ -952,6 +954,7 @@ const handleHoverEffect = () => {
         const el = e.target.closest(targets.join(","));
         if (!el) return;
         el.style.transform = "";
+        el.style.transition = "";
     };
 
     document.addEventListener("mousemove", handleMove);

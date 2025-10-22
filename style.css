@@ -1062,7 +1062,7 @@ textarea.task__form-input {
         padding: 0;
         background: none;
         box-shadow: unset;
-        transform: translate(-1.75rem, -3px);
+        transform: translate(-1.75rem, -3px) !important;
         backdrop-filter: unset;
         -webkit-backdrop-filter: unset;
     }
