@@ -1067,18 +1067,8 @@ textarea.task__form-input {
         -webkit-backdrop-filter: unset;
     }
 
-    .btn:focus,
-    .btn:hover {
-        transform: scale(1.075);
-    }
-
-    .modal__close:focus,
-    .modal__close:hover,
-    .btn__show-more:focus,
-    .btn__show-more:hover,
-    .content__header-btns-group:focus,
-    .content__header-btns-group:hover {
-        transform: scale(1.075);
+    .login {
+        max-width: unset;
     }
 
     .modal__content {

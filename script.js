@@ -522,33 +522,57 @@ const insertModal = (content, title = "Добавить задачу") => {
 
     modalContainer.append(modalBgWrapper);
 
-    modalContainer.addEventListener("mouseenter", () => {
-        modalBg.style.opacity = "1";
-    });
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-    modalContainer.addEventListener("mousemove", (e) => {
+    const handleMove = (e) => {
+        const point = e.touches?.[0] || e;
+        if (!point) return;
+        if (isTouch) e.preventDefault();
+
         if (e.target.closest(".task__full-additional-content") || e.target.closest(".datepicker")) {
             modalBg.style.opacity = "";
             return;
         } else {
             modalBg.style.opacity = "1";
         }
+
         const rect = modalContainer.getBoundingClientRect();
         const bgRect = modalBg.getBoundingClientRect();
-        const x = e.clientX - rect.left - bgRect.width / 2;
-        const y = e.clientY - rect.top - bgRect.height / 2;
+        const x = point.clientX - rect.left - bgRect.width / 2;
+        const y = point.clientY - rect.top - bgRect.height / 2;
         modalBg.style.transform = `translate(${x}px, ${y}px)`;
-    });
+    };
 
-    modalContainer.addEventListener("mouseleave", () => {
-        modalBg.style.opacity = "";
-    });
+    if (isTouch) {
+        modalContainer.addEventListener(
+            "touchstart",
+            () => {
+                modalBg.style.opacity = "1";
+            },
+            { passive: false }
+        );
+
+        modalContainer.addEventListener("touchmove", handleMove, { passive: false });
+
+        modalContainer.addEventListener("touchend", () => {
+            modalBg.style.opacity = "";
+        });
+    } else {
+        modalContainer.addEventListener("mouseenter", () => {
+            modalBg.style.opacity = "1";
+        });
+
+        modalContainer.addEventListener("mousemove", handleMove);
+
+        modalContainer.addEventListener("mouseleave", () => {
+            modalBg.style.opacity = "";
+        });
+    }
 
     document.body.append(modal);
 
     modal.addEventListener("click", (e) => {
-        const target = e.target;
-        if (!target || target.closest(".modal__container")) return;
+        if (!e.target || e.target.closest(".modal__container")) return;
         closeModal(e);
     });
     modalClose.addEventListener("click", (e) => closeModal(e));
@@ -917,7 +941,6 @@ const initInfiniteScroll = () => {
 };
 
 const handleHoverEffect = () => {
-    if (window.innerWidth <= 640) return;
     const targets = [
         ".content__header-btns-group",
         ".modal__close",
@@ -932,21 +955,32 @@ const handleHoverEffect = () => {
     const movePower = 18;
     const scalePowerX = 0.08;
     const scalePowerY = 0.08;
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-    const handleOver = (e) => {
+    const handleStart = (e) => {
         const el = e.target.closest(targets.join(","));
-        if (!el || el.contains(e.relatedTarget)) return;
-        el._transitionTimeout = setTimeout(() => {
+        if (!el) return;
+        if (isTouch) {
             el.style.transition = "none";
-        }, 400);
+        } else {
+            el._transitionTimeout = setTimeout(() => {
+                el.style.transition = "none";
+            }, 400);
+        }
     };
 
     const handleMove = (e) => {
         const el = e.target.closest(targets.join(","));
         if (!el) return;
+
+        const point = e.touches?.[0] || e;
+        if (!point) return;
+
+        if (isTouch) e.preventDefault();
+
         const r = el.getBoundingClientRect();
-        const ix = (e.clientX - r.left) / r.width - 0.5;
-        const iy = (e.clientY - r.top) / r.height - 0.5;
+        const ix = (point.clientX - r.left) / r.width - 0.5;
+        const iy = (point.clientY - r.top) / r.height - 0.5;
         const tx = (ix * r.width) / movePower;
         const ty = (iy * r.height) / movePower;
         const sx = 1 + Math.abs(ix) * scalePowerX;
@@ -954,17 +988,31 @@ const handleHoverEffect = () => {
         el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
     };
 
-    const handleOut = (e) => {
+    const handleEnd = (e) => {
         const el = e.target.closest(targets.join(","));
-        if (!el || el.contains(e.relatedTarget)) return;
+        if (!el) return;
         clearTimeout(el._transitionTimeout);
         el.style.transition = "";
         el.style.transform = "";
     };
 
-    document.addEventListener("mouseover", handleOver);
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseout", handleOut);
+    if (isTouch) {
+        document.addEventListener("touchstart", handleStart, { passive: false });
+        document.addEventListener("touchmove", handleMove, { passive: false });
+        document.addEventListener("touchend", handleEnd, { passive: false });
+    } else {
+        document.addEventListener("mouseover", (e) => {
+            const el = e.target.closest(targets.join(","));
+            if (!el || el.contains(e.relatedTarget)) return;
+            handleStart(e);
+        });
+        document.addEventListener("mousemove", handleMove);
+        document.addEventListener("mouseout", (e) => {
+            const el = e.target.closest(targets.join(","));
+            if (!el || el.contains(e.relatedTarget)) return;
+            handleEnd(e);
+        });
+    }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
