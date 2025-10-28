@@ -393,6 +393,8 @@ h4,
     white-space: nowrap;
     outline: none;
     font-family: "Inter", Arial, Helvetica, sans-serif;
+    backdrop-filter: blur(1rem) hue-rotate(-16deg);
+    -webkit-backdrop-filter: blur(1rem) hue-rotate(-16deg);
 }
 
 .btn__red {
@@ -515,8 +517,6 @@ h4,
     background-color: var(--color-main-10);
     padding: 0.5rem;
     flex-shrink: 0;
-    backdrop-filter: blur(1rem) hue-rotate(-16deg);
-    -webkit-backdrop-filter: blur(1rem) hue-rotate(-16deg);
     pointer-events: all;
 }
 
