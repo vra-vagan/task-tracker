@@ -984,9 +984,15 @@ const handleHoverEffect = () => {
         el.dataset.baseBoost = baseBoost;
         el.style.transform = `scale(${1 + baseBoost})`;
 
-        el._transitionTimeout = setTimeout(() => {
-            el.style.transition = "none";
-        }, 400);
+        if (isTouch) {
+            el._transitionTimeout = setTimeout(() => {
+                el.style.transition = "none";
+            }, 100);
+        } else {
+            el._transitionTimeout = setTimeout(() => {
+                el.style.transition = "none";
+            }, 400);
+        }
     };
 
     const handleMove = (e) => {
