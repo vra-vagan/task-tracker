@@ -682,7 +682,6 @@ const attachModalActions = (modal, content, task) => {
             }
         });
     }
-
 };
 
 const handleDatepickerInput = (container) => {
@@ -995,8 +994,8 @@ const handleHoverEffect = () => {
         const iy = (point.clientY - r.top) / r.height - 0.5;
         const tx = (ix * r.width) / movePower;
         const ty = (iy * r.height) / movePower;
-        const sx = 1 + Math.abs(ix) * scalePowerX;
-        const sy = 1 + Math.abs(iy) * scalePowerY;
+        const sx = 1 + Math.abs(ix) * scalePowerX - Math.abs(iy) * scalePowerY;
+        const sy = 1 + Math.abs(iy) * scalePowerY - Math.abs(ix) * scalePowerX;
         el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
     };
 
