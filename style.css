@@ -73,7 +73,6 @@ body {
     background-color: var(--color-bg-100);
     color: var(--color-main-100);
     font-family: var(--font-main);
-    transition: color 0.3s ease, background-color 0.3s ease;
     overflow: hidden;
 }
 
@@ -455,7 +454,7 @@ h4,
     margin: auto;
     background: var(--color-bg-flat);
     border-radius: 2rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
     position: relative;
     display: flex;
     flex-direction: column;
