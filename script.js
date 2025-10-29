@@ -987,7 +987,7 @@ const handleHoverEffect = () => {
         if (isTouch) {
             el._transitionTimeout = setTimeout(() => {
                 el.style.transition = "none";
-            }, 100);
+            }, 10);
         } else {
             el._transitionTimeout = setTimeout(() => {
                 el.style.transition = "none";
