@@ -570,6 +570,10 @@ const insertModal = (content, title = "Добавить задачу") => {
     }
 
     document.body.append(modal);
+    modalContent.style.paddingTop = modalHeader.offsetHeight + "px";
+    window.addEventListener("resize", () => {
+        modalContent.style.paddingTop = modalHeader.offsetHeight + "px";
+    });
 
     modal.addEventListener("click", (e) => {
         if (!e.target || e.target.closest(".modal__container")) return;
