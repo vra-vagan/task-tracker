@@ -975,13 +975,18 @@ const handleHoverEffect = () => {
     const handleStart = (e) => {
         const el = e.target.closest(targets.join(","));
         if (!el) return;
-        if (isTouch) {
+
+        const r = el.getBoundingClientRect();
+        const elementArea = r.width * r.height;
+        const normArea = 5000;
+        const baseBoost = Math.min(0.12, Math.max(0.03, (normArea / elementArea) * 0.06));
+
+        el.dataset.baseBoost = baseBoost;
+        el.style.transform = `scale(${1 + baseBoost})`;
+
+        el._transitionTimeout = setTimeout(() => {
             el.style.transition = "none";
-        } else {
-            el._transitionTimeout = setTimeout(() => {
-                el.style.transition = "none";
-            }, 400);
-        }
+        }, 400);
     };
 
     const handleMove = (e) => {
@@ -998,20 +1003,22 @@ const handleHoverEffect = () => {
         const iy = (point.clientY - r.top) / r.height - 0.5;
         const tx = (ix * r.width) / movePower;
         const ty = (iy * r.height) / movePower;
-        const elementArea = r.width * r.height;
-        const normArea = 5000;
-        const baseBoost = Math.min(0.12, Math.max(0.03, (normArea / elementArea) * 0.06));
+
+        const baseBoost = parseFloat(el.dataset.baseBoost) || 0;
         const sx = 1 + baseBoost + Math.abs(ix) * scalePowerX - Math.abs(iy) * scalePowerY;
         const sy = 1 + baseBoost + Math.abs(iy) * scalePowerY - Math.abs(ix) * scalePowerX;
+
         el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
     };
 
     const handleEnd = (e) => {
         const el = e.target.closest(targets.join(","));
         if (!el) return;
+
         clearTimeout(el._transitionTimeout);
         el.style.transition = "";
         el.style.transform = "";
+        delete el.dataset.baseBoost;
     };
 
     if (isTouch) {
