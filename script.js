@@ -1002,7 +1002,7 @@ const handleHoverEffect = () => {
         const point = e.touches?.[0] || e;
         if (!point) return;
 
-        if (isTouch) e.preventDefault();
+        // if (isTouch) e.preventDefault();
 
         const r = el.getBoundingClientRect();
         const ix = (point.clientX - r.left) / r.width - 0.5;
