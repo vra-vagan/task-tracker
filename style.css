@@ -494,6 +494,36 @@ h4,
 
 .modal__header h1 {
     margin: auto 0;
+    position: relative;
+    padding: 0.5rem 0rem;
+    isolation: isolate;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    transition: padding 0.3s ease;
+}
+
+.modal__header h1.modal__title:after {
+    content: '';
+    position: absolute;
+    padding: 0.5rem 1rem;
+    border-radius: 10rem;
+    background: var(--color-main-10);
+    inset: 0;
+    backdrop-filter: blur(1rem) hue-rotate(-16deg);
+    -webkit-backdrop-filter: blur(1rem) hue-rotate(-16deg);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: var(--box-shadow);
+}
+
+.modal__container[data-scroll="true"] .modal__header h1.modal__title {
+    padding: 0.5rem 1rem;
+}
+
+.modal__container[data-scroll="true"] .modal__header h1.modal__title:after {
+    opacity: 1;
 }
 
 .modal__content {
@@ -1074,13 +1104,7 @@ textarea.task__form-input {
     .modal__content {
         max-height: unset;
         overflow-x: unset;
-        overflow-y: unset;
-        scrollbar-width: unset;
-        padding: 0 1rem 1rem;
-    }
-
-    .modal__header {
-        position: unset;
+        padding: 4.75rem 1rem 1rem;
     }
 
     .modal__header::after {
@@ -1089,8 +1113,5 @@ textarea.task__form-input {
 
     .modal__container {
         max-height: unset;
-        overflow-x: hidden;
-        overflow-y: auto;
-        scrollbar-width: none;
     }
 }

@@ -600,6 +600,7 @@ const attachModalActions = (modal, content, task) => {
     const status = task.status === "created" ? "in_progress" : "done";
     const acceptBtn = content.querySelector(".task__accept");
     const copyBtns = content.querySelectorAll(".btn__copy");
+    const modalContainer = modal.querySelector(".modal__container");
     if (copyBtns.length) {
         copyBtns.forEach((copyBtn) => {
             copyBtn.addEventListener("click", () => copyToClipboard(copyBtn.dataset.url || ""));
@@ -671,6 +672,17 @@ const attachModalActions = (modal, content, task) => {
             }
         });
     }
+    if (modalContainer) {
+        modalContainer.dataset.scroll = "false";
+        modalContent.addEventListener("scroll", () => {
+            if (modalContent.scrollTop > 0) {
+                modalContainer.dataset.scroll = "true";
+            } else {
+                modalContainer.dataset.scroll = "false";
+            }
+        });
+    }
+
 };
 
 const handleDatepickerInput = (container) => {
