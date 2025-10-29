@@ -980,6 +980,8 @@ const handleHoverEffect = () => {
         if (!el) return;
 
         const r = el.getBoundingClientRect();
+        el.dataset.initialWidth = r.width;
+        el.dataset.initialHeight = r.height;
         const elementArea = r.width * r.height;
         const normArea = 5000;
         const baseBoost = Math.min(0.12, Math.max(0.03, (normArea / elementArea) * 0.06));
@@ -1008,10 +1010,13 @@ const handleHoverEffect = () => {
         if (isTouch) e.preventDefault();
 
         const r = el.getBoundingClientRect();
-        const ix = (point.clientX - r.left) / r.width - 0.5;
-        const iy = (point.clientY - r.top) / r.height - 0.5;
-        const tx = (ix * r.width) / movePower;
-        const ty = (iy * r.height) / movePower;
+        const w = parseFloat(el.dataset.initialWidth);
+        const h = parseFloat(el.dataset.initialHeight);
+
+        const ix = (point.clientX - r.left) / w - 0.5;
+        const iy = (point.clientY - r.top) / h - 0.5;
+        const tx = (ix * w) / movePower;
+        const ty = (iy * h) / movePower;
 
         const baseBoost = parseFloat(el.dataset.baseBoost) || 0;
         const sx = 1 + baseBoost + Math.abs(ix) * scalePowerX - Math.abs(iy) * scalePowerY;

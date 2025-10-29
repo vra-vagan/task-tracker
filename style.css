@@ -25,13 +25,11 @@
 html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow: hidden;
     font-size: 16px;
 }
 
 body {
     display: flex;
-    min-height: 100vh;
     --color-status-blue: #0078FF;
     --color-status-yellow: #FFCA00;
     --color-status-green: #34C559;
@@ -76,6 +74,7 @@ body {
     color: var(--color-main-100);
     font-family: var(--font-main);
     transition: color 0.3s ease, background-color 0.3s ease;
+    overflow: hidden;
 }
 
 h1 {
