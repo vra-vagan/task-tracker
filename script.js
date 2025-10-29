@@ -998,8 +998,11 @@ const handleHoverEffect = () => {
         const iy = (point.clientY - r.top) / r.height - 0.5;
         const tx = (ix * r.width) / movePower;
         const ty = (iy * r.height) / movePower;
-        const sx = 1 + Math.abs(ix) * scalePowerX - Math.abs(iy) * scalePowerY;
-        const sy = 1 + Math.abs(iy) * scalePowerY - Math.abs(ix) * scalePowerX;
+        const elementArea = r.width * r.height;
+        const normArea = 5000;
+        const baseBoost = Math.min(0.12, Math.max(0.03, (normArea / elementArea) * 0.06));
+        const sx = 1 + baseBoost + Math.abs(ix) * scalePowerX - Math.abs(iy) * scalePowerY;
+        const sy = 1 + baseBoost + Math.abs(iy) * scalePowerY - Math.abs(ix) * scalePowerX;
         el.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
     };
 
