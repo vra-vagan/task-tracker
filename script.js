@@ -527,7 +527,7 @@ const insertModal = (content, title = "Добавить задачу") => {
     const handleMove = (e) => {
         const point = e.touches?.[0] || e;
         if (!point) return;
-        if (isTouch) e.preventDefault();
+        // if (isTouch) e.preventDefault();
 
         if (e.target.closest(".task__full-additional-content") || e.target.closest(".datepicker")) {
             modalBg.style.opacity = "";
@@ -570,10 +570,12 @@ const insertModal = (content, title = "Добавить задачу") => {
     }
 
     document.body.append(modal);
-    modalContent.style.paddingTop = modalHeader.offsetHeight + "px";
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
         modalContent.style.paddingTop = modalHeader.offsetHeight + "px";
-    });
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    modal._handleResize = handleResize;
 
     modal.addEventListener("click", (e) => {
         if (!e.target || e.target.closest(".modal__container")) return;
@@ -594,6 +596,7 @@ const closeModal = (e) => {
     modal.dataset.active = "false";
     setTimeout(() => {
         modal.remove();
+        window.removeEventListener("resize", modal._handleResize);
     }, 300);
 };
 
@@ -1002,7 +1005,7 @@ const handleHoverEffect = () => {
         const point = e.touches?.[0] || e;
         if (!point) return;
 
-        // if (isTouch) e.preventDefault();
+        if (isTouch) e.preventDefault();
 
         const r = el.getBoundingClientRect();
         const ix = (point.clientX - r.left) / r.width - 0.5;
