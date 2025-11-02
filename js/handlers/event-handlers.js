@@ -268,11 +268,25 @@ export const EventHandlers = {
         const container = document.querySelector(".content__tasks");
         if (!container) return;
 
-        container.addEventListener("scroll", () => {
-            const { scrollTop, scrollHeight, clientHeight } = container;
-            if (scrollTop + clientHeight >= scrollHeight - 50) {
-                FirebaseService.loadTasks(true);
-            }
-        });
+        const isMobile = window.matchMedia("(max-width: 640px)").matches;
+
+        if (isMobile) {
+            window.addEventListener("scroll", () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight;
+                const clientHeight = window.innerHeight;
+
+                if (scrollTop + clientHeight >= scrollHeight - 50) {
+                    FirebaseService.loadTasks(true);
+                }
+            });
+        } else {
+            container.addEventListener("scroll", () => {
+                const { scrollTop, scrollHeight, clientHeight } = container;
+                if (scrollTop + clientHeight >= scrollHeight - 50) {
+                    FirebaseService.loadTasks(true);
+                }
+            });
+        }
     },
 };
