@@ -1,9 +1,5 @@
-import { checkUserAuth } from "./auth.js";
-import { handleHoverEffect } from "./effects.js";
-
-export const taskContainer = document.querySelector(".content__tasks");
+import { App } from "./app.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    checkUserAuth();
-    handleHoverEffect();
+    App.bootstrap();
 });

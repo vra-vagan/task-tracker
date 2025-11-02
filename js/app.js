@@ -1,77 +1,43 @@
-import { taskContainer } from "./main.js";
-import { setAllTasks, setLastVisible, setHasMore, setAppInitialized, getAppInitialized, getAllTasks, setCurrentUser } from "./store.js";
-import { loadTasks, initInfiniteScroll } from "./tasks.js";
-import { createTaskContent, createTaskForm, insertModal, closeModal, handleTaskSubmit, attachModalActions } from "./modal.js";
-import { handleDatepickerInput } from "./datepicker.js";
-import { logoutUser, checkUserAuth } from "./auth.js";
-import { SELECTORS, MESSAGES } from "./constants.js";
+import { state } from "./state/state.js";
+import { Auth } from "./services/auth-service.js";
+import { FirebaseService } from "./services/firebase-service.js";
+import { UI } from "./ui/ui.js";
+import { EventHandlers } from "./handlers/event-handlers.js";
+import { DeadlineTimer } from "./utils/deadline-timer.js";
+import { HoverEffects } from "./utils/hover-effects.js";
 
-const handleBtns = () => {
-    const updateBtn = document.querySelector(SELECTORS.contentHeaderUpdate);
-    if (updateBtn) {
-        updateBtn.addEventListener("click", () => {
-            setAllTasks([]);
-            setLastVisible(null);
-            setHasMore(true);
-            loadTasks(false);
+export const App = {
+    init() {
+        if (state.appInitialized) return;
+        state.appInitialized = true;
+
+        EventHandlers.attachHeaderButtons();
+        EventHandlers.initInfiniteScroll();
+        FirebaseService.loadTasks();
+    },
+
+    setupEventListeners() {
+        document.addEventListener("tasksLoaded", (e) => {
+            UI.renderTasks(e.detail);
+            EventHandlers.attachTaskClickHandlers();
+            DeadlineTimer.start();
         });
-    }
 
-    const logoutBtn = document.querySelector(SELECTORS.contentHeaderLogout);
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", logoutUser);
-    }
-};
+        document.addEventListener("userLoggedIn", () => {
+            this.init();
+        });
+    },
 
-const handleTaskClick = () => {
-    taskContainer.addEventListener("click", (e) => {
-        const taskItem = e.target.closest(SELECTORS.task);
-        if (!taskItem || e.target.closest(SELECTORS.taskLink)) return;
+    bootstrap() {
+        this.setupEventListeners();
 
-        const taskId = taskItem.dataset.id;
-        const task = getAllTasks().find((t) => t.id === taskId);
-        if (!task) return;
-
-        const content = createTaskContent(task);
-        const modal = insertModal(content, task.title || "");
-        attachModalActions(modal, content, task);
-    });
-};
-
-const handleAdd = () => {
-    document.querySelector(SELECTORS.contentHeaderAdd)?.addEventListener("click", () => {
-        const userData = localStorage.getItem("user");
-        if (!userData) {
-            checkUserAuth();
-            return;
+        if (Auth.checkAuth()) {
+            this.init();
+        } else {
+            const loginForm = UI.renderLoginForm();
+            EventHandlers.attachLoginHandlers(loginForm);
         }
-        setCurrentUser(JSON.parse(userData));
-        const addForm = createTaskForm();
-        insertModal(addForm, MESSAGES.addTask);
 
-        addForm.addEventListener("submit", (e) => handleTaskSubmit(e));
-        addForm.querySelector(SELECTORS.taskFormCancel).addEventListener("click", closeModal);
-
-        handleDatepickerInput(addForm);
-        addForm.querySelectorAll(SELECTORS.taskFormInput).forEach((input) => {
-            input.addEventListener("input", () => {
-                if (input.classList.contains("error") && input.value.trim() !== "") {
-                    input.classList.remove("error");
-                }
-            });
-        });
-    });
+        HoverEffects.init();
+    },
 };
-
-const initApp = () => {
-    if (getAppInitialized()) return;
-    setAppInitialized(true);
-
-    handleBtns();
-    handleAdd();
-    handleTaskClick();
-    loadTasks();
-    initInfiniteScroll();
-};
-
-export { handleBtns, handleTaskClick, handleAdd, initApp };
