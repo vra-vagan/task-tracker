@@ -13,8 +13,8 @@ export const Modal = {
 
         const modalTitle = document.createElement("h1");
         modalTitle.className = "modal__title";
-        modalTitle.textContent = title;
-        modalTitle.dataset.originalText = title;
+        modalTitle.textContent = Utils.capitalizeFirstLetter(title);
+        modalTitle.dataset.originalText = Utils.capitalizeFirstLetter(title);
 
         const modalClose = document.createElement("button");
         modalClose.className = "modal__close btn";

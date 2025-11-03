@@ -56,9 +56,9 @@ export const UI = {
       <div class="task__info">
         <div class="task__top">
           <div class="task__top-title-container">
-            <h2 class="task__top-title">${task.title}</h2>
+            <h2 class="task__top-title">${Utils.capitalizeFirstLetter(task.title)}</h2>
           </div>
-          <p class="task__top-description">${Utils.escapeHTML(task.description)}</p>
+          <p class="task__top-description">${Utils.capitalizeFirstLetter(Utils.escapeHTML(task.description))}</p>
         </div>
         <div class="task__bottom">
           <p class="task__bottom-item">
@@ -122,7 +122,7 @@ export const UI = {
         content.className = "task__full";
         content.dataset.id = task.id;
 
-        const descrWithLinks = Utils.convertLinksToAnchors(task.description || "");
+        const descrWithLinks = Utils.convertLinksToAnchors(Utils.capitalizeFirstLetter(task.description || ""));
         content.innerHTML = `
       <p class="task__full-description">${descrWithLinks}</p>
       <div class="task__full-links">
