@@ -107,7 +107,7 @@ export const EventHandlers = {
                 modalTitle.textContent = "Изменить задачу";
 
                 editForm.addEventListener("submit", async (e) => {
-                    await this.handleTaskSubmit(e, task.id, "created");
+                    await this.handleTaskSubmit(e, "created", task);
                 });
 
                 editForm.querySelector(".task__form-cancel")?.addEventListener("click", (e) => {
@@ -162,15 +162,15 @@ export const EventHandlers = {
         });
     },
 
-    async handleTaskSubmit(e, taskId = null, currentStatus = "created") {
+    async handleTaskSubmit(e, currentStatus = "created", task = null) {
         e.preventDefault();
-
         const titleInput = document.querySelector("#add-task__title");
         const descriptionInput = document.querySelector("#add-task__description");
         const createdByInput = document.querySelector("#add-task__createdBy");
         const deadlineInput = document.querySelector("#add-task__deadline");
         const tzLinkInput = document.querySelector("#add-task__tzLink");
         const figmaLinkInput = document.querySelector("#add-task__figmaLink");
+        const taskId = task ? task.id : null;
 
         const requiredFields = [titleInput, descriptionInput, createdByInput, deadlineInput];
         let hasError = false;
@@ -200,7 +200,7 @@ export const EventHandlers = {
             createdAt: new Date().toISOString(),
             status: currentStatus,
             deadLine: deadlineInput.value.trim().split(".").reverse().join("-"),
-            company: state.currentUser?.login || "",
+            company: task?.company || state.currentUser?.login || "",
         };
 
         if (taskId) {
